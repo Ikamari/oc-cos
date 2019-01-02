@@ -5,14 +5,15 @@ function Object:new(properties, parameters, inheritance)
     properties = properties or {}
     parameters = parameters or {}
 
-    -- Call constructor only when initializing object
-    if self.constructor ~= nil and inheritance ~= true then
-        self:constructor(_, parameters)
-    end
-
     -- Initialization part
     setmetatable(properties, self)
     self.__index = self
+
+    -- Call constructor only when initializing object
+    if self.constructor ~= nil and inheritance ~= true then
+        self:constructor(properties, parameters)
+    end
+
     return properties
 end
 

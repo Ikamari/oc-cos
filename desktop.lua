@@ -4,7 +4,7 @@
 
 local Window   = require "window"
 local PopUp    = require "popup"
---local Paint    = require "apps.paint"
+local Paint    = require "apps.paint"
 local computer = require("component").computer
 
 local Desktop = Window:inherit({
@@ -19,7 +19,6 @@ local Desktop = Window:inherit({
 })
 
 function Desktop:processKeyDownEvent(a, b, c, d)
---    print (c)
     if c == 2 then
         local popUp = PopUp:new(_, {
             windowName = "Уведомление",
@@ -50,15 +49,15 @@ function Desktop:processKeyDownEvent(a, b, c, d)
 
         self:renderWindowBackground()
         self:renderContent()
---    elseif c == 5 then
---        local popUp = Paint:new(_, {
---            windowX = self.contentX,
---            windowY = self.contentY
---        })
---        popUp:init()
---
---        self:renderWindowBackground()
---        self:renderContent()
+    elseif c == 5 then
+        local paint = Paint:new(_, {
+            windowX = self.contentX,
+            windowY = self.contentY
+        })
+        paint:init()
+
+        self:renderWindowBackground()
+        self:renderContent()
     end
 end
 

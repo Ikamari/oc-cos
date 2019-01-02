@@ -178,13 +178,13 @@ function Window:init()
     -- Main loop
     while true do
         if self.doEventHandling then
-            local id, a, b, c, d = event.pullMultiple("interrupted", "touch", "key_down")
+            local id, a, b, c, d = event.pullMultiple("interrupted", "touch", "drag", "key_down")
             if id == "interrupted" then
                 self:processInterruptEvent()
-            elseif id == "touch" then
-                self:processTouchEvent(a, b, c, d)
             elseif id == "drag" then
                 self:processDragEvent(a, b, c, d)
+            elseif id == "touch" then
+                self:processTouchEvent(a, b, c, d)
             elseif id == "key_down" then
                 self:processKeyDownEvent(a, b, c, d)
             end

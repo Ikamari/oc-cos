@@ -55,7 +55,6 @@ function ClickableZone:check(x, y, additionalParameters)
         error("Clickable zone must be initialized")
     end
 
-    print(self, "type:", self.type, "minX:", self.minX, "maxX:", self.maxX, "minY:", self.minY, "maxY:", self.maxY)
     additionalParameters = additionalParameters or {}
 
     if self.debug then
@@ -64,7 +63,7 @@ function ClickableZone:check(x, y, additionalParameters)
     end
 
     if self.type == "zone" then
-        if (self.minX <= x and x >= self.maxX) and (self.minY <= y and y >= self.maxY) then
+        if (self.minX <= x and x <= self.maxX) and (self.minY <= y and y <= self.maxY) then
             self.callback(self.parent, self.callbackParameters, additionalParameters)
         end
     else
