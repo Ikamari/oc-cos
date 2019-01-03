@@ -2,8 +2,10 @@
 -- Created by Ikamari, 02.01.2019 13:02
 --
 
-local Window        = require "window"
-local ClickableZone = require "main.clickableZone"
+-- COS
+local Window        = require "system.window"
+local ClickableZone = require "system.ui.clickableZone"
+-- OOS
 local component     = require "component"
 local gpu           = component.gpu
 

@@ -2,8 +2,10 @@
 -- Created by Ikamari, 14.12.2018 22:02
 --
 
-local Object        = require "main.object"
-local ClickableZone = require "main.clickableZone"
+-- COS
+local Object        = require "system.main.object"
+local ClickableZone = require "system.ui.clickableZone"
+-- OOS
 local event         = require "event"
 local component     = require "component"
 local gpu           = component.gpu
@@ -14,9 +16,6 @@ local Window = Object:inherit({
     terminated            = false,
     doEventHandling       = true,
     doProcessInterruption = true,
-
-    inheritBackroundColor  = gpu.getBackground(),
-    inheritForegroundColor = gpu.getForeground(),
 
     frameColor        = 0x555547,
     backgroundColor   = 0x282828,
@@ -29,7 +28,7 @@ local Window = Object:inherit({
     autoSize          = true, -- if true, then windowWidth = screenWidth - widnowX * 2 (same with height)
 
     doWindowFrameRender = true,
-    doBackgroundRender  = false,
+    doBackgroundRender  = true,
     doWindowNameRender  = true,
     doCloseButtonRender = true,
 
@@ -49,6 +48,9 @@ function Window:constructor(properties, parameters)
 
     properties.windowX = parameters.windowX or properties.windowX
     properties.windowY = parameters.windowY or properties.windowY
+
+    properties.inheritBackgroundColor = gpu.getBackground()
+    properties.inheritForegroundColor = gpu.getForeground()
 
     if properties.autoSize then
         properties.windowWidth  = screenWidth  - (properties.windowX * 2 - 1)

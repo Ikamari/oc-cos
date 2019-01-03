@@ -2,7 +2,7 @@
 -- Created by Ikamari, 21.12.2018 21:36
 --
 
-local Object = require "main.object"
+local Object = require "system.main.object"
 
 local ClickableZone = Object:inherit({
     initialized = false,
@@ -44,18 +44,19 @@ function ClickableZone:constructor(properties, parameters)
         properties.maxY = parameters.height + parameters.y - 1
     end
 
-    properties.parent = parameters.parent
-    properties.callback = parameters.callback
-    properties.callbackParameters = parameters.callbackParameters
+    properties.parent             = parameters.parent
+    properties.callback           = parameters.callback
+    properties.onFailCallback     = parameters.onFailCallback or false
+    properties.callbackParameters = parameters.callbackParameters or {}
 end
 
 -- Check whether user have clicked the clickable zone/point
-function ClickableZone:check(x, y, additionalParameters)
+function ClickableZone:check(x, y, parameters)
     if not self.initialized then
         error("Clickable zone must be initialized")
     end
 
-    additionalParameters = additionalParameters or {}
+    parameters = parameters or {}
 
     if self.debug then
         print("x:", x, "y:", y)
@@ -64,11 +65,19 @@ function ClickableZone:check(x, y, additionalParameters)
 
     if self.type == "zone" then
         if (self.minX <= x and x <= self.maxX) and (self.minY <= y and y <= self.maxY) then
-            self.callback(self.parent, self.callbackParameters, additionalParameters)
+            self.callback(self.parent, self.callbackParameters, parameters)
+        else
+            if self.onFailCallback ~= false then
+                self.onFailCallback(self.parent, self.callbackParameters, parameters)
+            end
         end
     else
         if self.minX == x and self.minY == y then
-            self.callback(self.parent, self.callbackParameters, additionalParameters)
+            self.callback(self.parent, self.callbackParameters, parameters)
+        else
+            if self.onFailCallback ~= false then
+                self.onFailCallback(self.parent, self.callbackParameters, parameters)
+            end
         end
     end
 end

@@ -2,7 +2,9 @@
 -- Created by Ikamari, 16.12.2018 14:05
 --
 
-local Window    = require "window"
+-- COS
+local Window    = require "system.window"
+-- OOS
 local component = require "component"
 local gpu       = component.gpu
 local screenWidth, screenHeight = gpu.getResolution()
@@ -43,7 +45,6 @@ function PopUp:constructor(properties, parameters)
     -- Call parent constructor
     Window:constructor(properties)
 
-    parameters            = parameters or {}
     properties.windowName = parameters.windowName or "Всплывающее окно"
     properties.text       = parameters.text or ""
     properties.type       = parameters.type or "default"
