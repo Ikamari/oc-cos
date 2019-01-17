@@ -46,6 +46,8 @@ function Window:constructor(properties, parameters)
     properties = properties or self
     parameters = parameters or {}
 
+    properties.system = parameters.system
+
     properties.windowX = parameters.windowX or properties.windowX
     properties.windowY = parameters.windowY or properties.windowY
 

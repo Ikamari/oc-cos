@@ -32,7 +32,7 @@ function Desktop:constructor(properties, parameters)
     parameters = parameters or {}
 
     -- Call parent constructor
-    Window:constructor(properties)
+    Window:constructor(properties, parameters)
 
     -- TODO: Get rid of hardcode
     -- Define shortcuts
@@ -47,7 +47,8 @@ function Desktop:constructor(properties, parameters)
             label = "Рисовалка",
             parameters = {
                 windowX = properties.contentX,
-                windowY = properties.contentY
+                windowY = properties.contentY,
+                system  = properties.system
             }
         },
         {

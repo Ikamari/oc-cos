@@ -3,11 +3,13 @@
 --
 
 -- COS
-local Desktop   = require "system.desktop"
-local Config    = require "system.utillity.config"
+local Object  = require "system.main.object"
+local Desktop = require "system.desktop"
+local Config  = require "system.utillity.config"
 -- OOS
-local process   = require "process"
 local computer  = require "computer"
+local shell     = require "shell"
+local process   = require "process"
 
 -- Todo: uncomment when release version will be ready
 --process.info().data.signal = function(...)
@@ -16,23 +18,35 @@ local computer  = require "computer"
 --    computer.beep(750, 0.02)
 --end
 
---local config = Config:new()
---
---config:create("test", {one = "one", two = "two"})
---print("Created new config file")
---io.read()
---
---print("New config file values:")
---for k,v in pairs(config:get("test")) do print(k, "-->", v) end
---io.read()
---
---print("Updated config values in different ways")
---config:setValue("test", "one", 1)
---config:setValues("test", {two = 2, three = 3})
---io.read()
---
---print("Config file with updated values:")
---for k,v in pairs(config:get("test")) do print(k, "-->", v) end
+local OS = Object:inherit({
+    isRunning = false
+})
 
-local desktop = Desktop:new()
-desktop:init()
+function OS:constructor(properties, parameters)
+    -- Define which properties must be used (Needed for child classes that calls parent constructor)
+    properties = properties or self
+    parameters = parameters or {}
+
+    properties.rootPath = shell.resolve(process.info().path):gsub("(%S+.)os", "%1")
+
+    local config = Config:new(_, {
+        rootPath = properties.rootPath
+    })
+    properties.config = config
+end
+
+function OS:run()
+    if (self.isRunning) then
+        return false
+    end
+    self.isRunning = true
+
+    local desktop = Desktop:new(_, {
+        system = self
+    })
+    desktop:init()
+end
+
+local system = OS:new()
+system:run()
+

@@ -31,19 +31,13 @@ function Paint:constructor(properties, parameters)
     properties.canvasWidth  = properties.contentWidth
     properties.canvasHeight = properties.contentHeight
 
-end
-
--- Also can be used to clean canvas
-function Paint:renderCanvas()
-    gpu.setBackground(0xFFFFFF)
-    gpu.fill(self.canvasX, self.canvasY, self.canvasWidth, self.canvasHeight, " ")
     local canvasZone = ClickableZone:new(_, {
-        x      = self.canvasX,
-        y      = self.canvasY,
-        width  = self.canvasWidth,
-        height = self.canvasHeight,
+        x      = properties.canvasX,
+        y      = properties.canvasY,
+        width  = properties.canvasWidth,
+        height = properties.canvasHeight,
         type   = "zone",
-        parent = self,
+        parent = properties,
         callback = function (properties, _, parameters)
             if properties.doDrawing then
                 gpu.setBackground(0x000000)
@@ -51,7 +45,13 @@ function Paint:renderCanvas()
             end
         end
     })
-    self.clickableZones["canvas"] = canvasZone
+    properties.clickableZones["canvas"] = canvasZone
+end
+
+-- Also can be used to clean canvas
+function Paint:renderCanvas()
+    gpu.setBackground(0xFFFFFF)
+    gpu.fill(self.canvasX, self.canvasY, self.canvasWidth, self.canvasHeight, " ")
 end
 
 function Paint:renderContent()
