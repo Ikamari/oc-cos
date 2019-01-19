@@ -3,8 +3,9 @@
 --
 
 -- COS
-local Component = require "system.component"
-local constants = require "system.constants"
+local Component    = require "system.component"
+local constants    = require "system.constants"
+local StringHelper = require "system.helpers.stringHelper"
 -- OOS
 local component = require "component"
 local gpu       = component.gpu
@@ -33,21 +34,12 @@ function Shortcut:constructor(properties, parameters)
     properties.label     = parameters.label or properties.label
     properties.realLabel = parameters.label or properties.label
 
-    local _, labelLenght   = string.gsub(properties.label, "[^\128-\193]", "")
+    local labelLenght = StringHelper:getLength(properties.label)
     if labelLenght + 2 < constants.shortcutWidth then
         properties.labelIndent = math.floor((constants.shortcutWidth - labelLenght) / 2)
     else
         properties.labelIndent = 1
-        properties.label = ""
-        local i = 0
-        for c in properties.realLabel:gmatch(".[\128-\191]*") do
-            i = i + 1
-            properties.label = properties.label .. c
-            if i == constants.shortcutWidth - 3 then
-                break
-            end
-        end
-        properties.label = properties.label .. "…"
+        properties.label = StringHelper:trim(properties.label, constants.shortcutWidth - 2)
     end
 
     properties.icon        = parameters.icon  or properties.icon

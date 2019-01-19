@@ -28,7 +28,7 @@ end
 function Config:getConfigFileValues(configFilePath)
     -- Check whether specified config file exists
     if (not filesystem.exists(configFilePath)) then
-        error("Config file \"" .. configName .. "\" does not exist")
+        error("Config file \"" .. configFilePath .. "\" does not exist")
     end
 
     -- Unserialize content of config file
@@ -41,14 +41,19 @@ end
 -- Also can be used to create config file
 function Config:setConfigFileValues(configFilePath, serializedValues)
     -- Check whether specified config file exists
-    if (filesystem.exists(configFilePath)) then
-        error("Config file \"" .. configName .. "\" already exist")
-    end
+--    if (not filesystem.exists(configFilePath)) then
+--        error("Config file \"" .. configFilePath .. "\" already exist")
+--    end
 
     -- Create new config file with specified values
     local configFile = io.open(configFilePath, "w")
     configFile:write(serializedValues)
     configFile:close()
+end
+
+function Config:exist(configName)
+    local configFilePath = self.configsPath .. "/" .. configName .. ".cfg"
+    return filesystem.exists(configFilePath)
 end
 
 function Config:create(configName, initialValues)
@@ -68,7 +73,7 @@ function Config:get(configName, valueName)
     end
 
     local configFilePath = self.configsPath .. "/" .. configName .. ".cfg"
-    local configValues   = self:getConfigValues(configFilePath)
+    local configValues   = self:getConfigFileValues(configFilePath)
 
     -- Return specified/all config value(s)
     if type(valueName) == "string" then
@@ -84,7 +89,7 @@ function Config:setValue(configName, valueName, newValue)
     end
 
     local configFilePath = self.configsPath .. "/" .. configName .. ".cfg"
-    local configValues   = self:getConfigValues(configFilePath)
+    local configValues   = self:getConfigFileValues(configFilePath)
 
     -- Update specified value in config
     configValues[valueName] = newValue
@@ -99,7 +104,7 @@ function Config:setValues(configName, values)
     end
 
     local configFilePath = self.configsPath .. "/" .. configName .. ".cfg"
-    local configValues   = self:getConfigValues(configFilePath)
+    local configValues   = self:getConfigFileValues(configFilePath)
 
     -- Update specified value in config
     for key, value in pairs(values) do

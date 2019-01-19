@@ -157,9 +157,9 @@ function Window:renderContent() end
 
 function Window:processInterruptEvent()
     if self.doProcessInterruption then
-        gpu.setBackground(self.inheritBackroundColor)
-        gpu.setForeground(self.inheritForegroundColor)
-        gpu.fill(self.windowX, self.windowY, self.windowWidth, self.windowHeight, " ")
+--        gpu.setBackground(self.inheritBackroundColor)
+--        gpu.setForeground(self.inheritForegroundColor)
+--        gpu.fill(self.windowX, self.windowY, self.windowWidth, self.windowHeight, " ")
         self.terminated = true
     end
 end
@@ -177,7 +177,6 @@ function Window:processKeyDownEvent() end
 
 function Window:init()
     self:renderWindow()
---    print(self.clickableZones)
 
     -- Main loop
     while true do
