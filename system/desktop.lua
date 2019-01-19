@@ -7,8 +7,10 @@ local Window        = require "system.window"
 local ClickableZone = require "system.ui.clickableZone"
 local Shortcut      = require "system.desktop.shortcut"
 local PopUp         = require "system.popup"
-local Paint         = require "apps.paint"
 local constants     = require "system.constants"
+-- COS Apps
+local Paint            = require "apps.paint"
+local UIComponentsTest = require "apps.uiComponentsTest"
 -- OOS
 local computer      = require "computer"
 local component     = require "component"
@@ -45,6 +47,15 @@ function Desktop:constructor(properties, parameters)
         {
             app = Paint,
             label = "Рисовалка",
+            parameters = {
+                windowX = properties.contentX,
+                windowY = properties.contentY,
+                system  = properties.system
+            }
+        },
+        {
+            app = UIComponentsTest,
+            label = "UI тест",
             parameters = {
                 windowX = properties.contentX,
                 windowY = properties.contentY,

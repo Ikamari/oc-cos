@@ -42,7 +42,7 @@ function Shortcut:constructor(properties, parameters)
         properties.label = StringHelper:trim(properties.label, constants.shortcutWidth - 2)
     end
 
-    properties.icon        = parameters.icon  or properties.icon
+    properties.icon = parameters.icon  or properties.icon
 end
 
 function Shortcut:switchSelectedState()

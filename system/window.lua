@@ -67,7 +67,9 @@ function Window:constructor(properties, parameters)
     properties.contentWidth  = properties.windowWidth  - (properties.renderSideBorders and 8 or 4)
     properties.contentHeight = properties.windowHeight - 4
 
-    properties.clickableZones = {}
+    properties.clickableZones     = {}
+    properties.components         = {}
+    properties.editableComponents = {}
 end
 
 function Window:switchEventHandling()
@@ -153,7 +155,18 @@ function Window:renderWindowBackground()
     return true
 end
 
-function Window:renderContent() end
+function Window:renderComponents()
+    for key, uiComponent in pairs(self.components) do
+        uiComponent:render()
+    end
+    for key, uiComponent in pairs(self.editableComponents) do
+        uiComponent:render()
+    end
+end
+
+function Window:renderContent()
+    self:renderComponents()
+end
 
 function Window:processInterruptEvent()
     if self.doProcessInterruption then
@@ -166,8 +179,13 @@ end
 
 function Window:processTouchEvent(a, b, c, d)
     for key, zone in pairs(self.clickableZones) do
---        print(key, zone)
         zone:check(b, c)
+    end
+    for key, uiComponent in pairs(self.components) do
+        uiComponent.clickableZone:check(b, c)
+    end
+    for key, uiComponent in pairs(self.editableComponents) do
+        uiComponent.clickableZone:check(b, c)
     end
 end
 

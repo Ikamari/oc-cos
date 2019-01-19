@@ -91,7 +91,11 @@ function OS:init()
         return false
     end
     self.isRunning = true
-    self.doSlowStartup = self.config:exist("startup") and self.config:get("startup", "doSlowStartup") or true
+    if (self.config:exist("startup")) then
+        self.doSlowStartup = self.config:get("startup", "doSlowStartup")
+    else
+        self.doSlowStartup = true
+    end
 
     os.execute("clear")
 

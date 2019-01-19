@@ -12,7 +12,6 @@ local gpu           = component.gpu
 local Paint = Window:inherit({
     -- Properties
     windowName = "Рисовалка",
-    renderSideBorders = false,
 
     doDrawing = true
     --
