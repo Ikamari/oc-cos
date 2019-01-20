@@ -25,9 +25,9 @@ function Button:constructor(properties, parameters)
     properties.labelForegroundColor = parameters.foregroundColor or 0x282828
 
     properties.label = parameters.label or ""
-    local labelLenght = StringHelper:getLength(properties.label)
-    if labelLenght + 2 < properties.width then
-        properties.labelIndent = math.floor((properties.width - labelLenght) / 2)
+    local labelLength = StringHelper:getLength(properties.label)
+    if labelLength + 2 < properties.width then
+        properties.labelIndent = math.floor((properties.width - labelLength) / 2)
     else
         properties.labelIndent = 1
         properties.label = StringHelper:trim(properties.label, properties.width - 2)

@@ -34,9 +34,9 @@ function Shortcut:constructor(properties, parameters)
     properties.label     = parameters.label or properties.label
     properties.realLabel = parameters.label or properties.label
 
-    local labelLenght = StringHelper:getLength(properties.label)
-    if labelLenght + 2 < constants.shortcutWidth then
-        properties.labelIndent = math.floor((constants.shortcutWidth - labelLenght) / 2)
+    local labelLength = StringHelper:getLength(properties.label)
+    if labelLength + 2 < constants.shortcutWidth then
+        properties.labelIndent = math.floor((constants.shortcutWidth - labelLength) / 2)
     else
         properties.labelIndent = 1
         properties.label = StringHelper:trim(properties.label, constants.shortcutWidth - 2)

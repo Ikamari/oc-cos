@@ -3,12 +3,13 @@
 --
 
 -- COS
-local Window        = require "system.window"
-local Button        = require "system.ui.button"
-local Switch        = require "system.ui.switch"
+local Window    = require "system.window"
+local Button    = require "system.ui.button"
+local Switch    = require "system.ui.switch"
+local TextField = require "system.ui.textField"
 -- OOS
-local component     = require "component"
-local gpu           = component.gpu
+local component = require "component"
+local gpu       = component.gpu
 
 local uiComponentsTest = Window:inherit({
     -- Properties
@@ -82,6 +83,26 @@ function uiComponentsTest:constructor(properties, parameters)
     })
     properties.components[#properties.components + 1] = testButton4
 
+    local testTextField1 = TextField:new(_, {
+        parent = properties,
+        posX   = properties.contentX + 47,
+        posY   = properties.contentY,
+        width  = 25,
+        height = 3,
+        text   = "Текстовое поле, которое может в себя вместить 3 строки по 25 символов"
+    })
+    properties.components[#properties.components + 1] = testTextField1
+
+    local testTextField2 = TextField:new(_, {
+        parent = properties,
+        posX   = properties.contentX + 74,
+        posY   = properties.contentY,
+        width  = 25,
+        height = 3,
+        text   = "Ещё одно текстовое поле, которое реагирует на переключатель ниже"
+    })
+    properties.components[#properties.components + 1] = testTextField2
+
     local testSwitch1 = Switch:new(_, {
         parent = properties,
         posX   = properties.contentX,
@@ -102,7 +123,11 @@ function uiComponentsTest:constructor(properties, parameters)
         activeLabelBackgroundColor   = 0x00AA00,
         unactiveLabelBackgroundColor = 0xAA0000,
         doLabelRenderOnActive   = false,
-        doLabelRenderOnUnactive = false
+        doLabelRenderOnUnactive = false,
+        onTouchCallback         = function (state)
+            testTextField2.textForegroundColor = state and 0x00AA00 or 0xAA0000
+            properties:renderWindow()
+        end
     })
     properties.components[#properties.components + 1] = testSwitch2
 end

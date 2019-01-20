@@ -54,17 +54,17 @@ function Switch:constructor(properties, parameters)
         properties.tableKey = parameters.tableKey
     end
 
-    local activeLabelLenght = StringHelper:getLength(properties.activeLabel)
-    if activeLabelLenght + 2 < properties.width then
-        properties.activeLabelIndent = math.floor((properties.width - activeLabelLenght) / 2)
+    local activeLabelLength = StringHelper:getLength(properties.activeLabel)
+    if activeLabelLength + 2 < properties.width then
+        properties.activeLabelIndent = math.floor((properties.width - activeLabelLength) / 2)
     else
         properties.activeLabelIndent = 1
         properties.activeLabel = StringHelper:trim(properties.activeLabel, properties.width - 2)
     end
 
-    local unactiveLabelLenght = StringHelper:getLength(properties.unactiveLabel)
-    if unactiveLabelLenght + 2 < properties.width then
-        properties.unactiveLabelIndent = math.floor((properties.width - unactiveLabelLenght) / 2)
+    local unactiveLabelLength = StringHelper:getLength(properties.unactiveLabel)
+    if unactiveLabelLength + 2 < properties.width then
+        properties.unactiveLabelIndent = math.floor((properties.width - unactiveLabelLength) / 2)
     else
         properties.unactiveLabelIndent = 1
         properties.unactiveLabel = StringHelper:trim(properties.unactiveLabel, properties.width - 2)
