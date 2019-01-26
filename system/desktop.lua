@@ -4,13 +4,13 @@
 
 -- COS
 local Window        = require "system.window"
-local ClickableZone = require "system.ui.clickableZone"
-local Shortcut      = require "system.desktop.shortcut"
+local ClickableZone = require "system.components.clickableZone"
+local Shortcut      = require "system.components.desktop.shortcut"
 local PopUp         = require "system.popup"
 local constants     = require "system.constants"
 -- COS Apps
-local Paint            = require "apps.paint"
-local UIComponentsTest = require "apps.uiComponentsTest"
+local Paint          = require "apps.paint"
+local ComponentsTest = require "apps.componentsTest"
 -- OOS
 local computer      = require "computer"
 local component     = require "component"
@@ -19,12 +19,12 @@ local screenWidth, screenHeight = gpu.getResolution()
 
 local Desktop = Window:inherit({
     -- Properties
-    doWindowFrameRender = false,
+    doFrameRender       = false,
     doBackgroundRender  = true,
     doWindowNameRender  = false,
     doCloseButtonRender = false,
 
-    autoSize          = false
+    autoSize = false
     --
 })
 
@@ -36,7 +36,6 @@ function Desktop:constructor(properties, parameters)
     -- Call parent constructor
     Window:constructor(properties, parameters)
 
-    -- TODO: Get rid of hardcode
     -- Define shortcuts
     properties.nextShortcutX = properties.contentX
     properties.nextShortcutY = properties.contentY
@@ -54,7 +53,7 @@ function Desktop:constructor(properties, parameters)
             }
         },
         {
-            app = UIComponentsTest,
+            app = ComponentsTest,
             label = "UI тест",
             parameters = {
                 windowX = properties.contentX,
@@ -116,8 +115,7 @@ function Desktop:addShortcut(properties, label, App, appParameters)
                 local app = callbackParameters.app:new(_, callbackParameters.appParameters)
                 app:init()
 
-                parent:renderWindowBackground()
-                parent:renderContent()
+                parent:render()
             else
                 callbackParameters.shortcut:switchSelectedState()
                 callbackParameters.shortcut:render()
@@ -142,16 +140,6 @@ function Desktop:addShortcut(properties, label, App, appParameters)
     if properties.nextShortcutX > maxNextShortcutX then
         properties.nextShortcutX = 0
         properties.nextShortcutY = properties.nextShortcutY + constants.shortcutHeight + 1
-    end
-end
-
-function Desktop:processKeyDownEvent(a, b, c, d)
-    if c == 2 then
-        local popUp = PopUp:new(_, {})
-        popUp:init()
-
-        self:renderWindowBackground()
-        self:renderContent()
     end
 end
 

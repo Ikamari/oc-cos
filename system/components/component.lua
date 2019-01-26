@@ -4,7 +4,7 @@
 
 -- COS
 local Object        = require "system.main.object"
-local ClickableZone = require "system.ui.clickableZone"
+local ClickableZone = require "system.components.clickableZone"
 
 local UIComponent = Object:inherit({
     mustHaveParentReference = true,

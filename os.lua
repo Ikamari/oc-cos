@@ -5,7 +5,7 @@
 -- COS
 local Object  = require "system.main.object"
 local Desktop = require "system.desktop"
-local Config  = require "system.utillity.config"
+local Config  = require "system.configManager"
 -- OOS
 local computer  = require "computer"
 local shell     = require "shell"

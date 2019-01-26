@@ -4,10 +4,10 @@
 
 -- COS
 local Window     = require "system.window"
-local Button     = require "system.ui.button"
-local Switch     = require "system.ui.switch"
-local TextField  = require "system.ui.textField"
-local InputField = require "system.ui.inputField"
+local Button     = require "system.components.common.button"
+local Switch     = require "system.components.common.switch"
+local TextField  = require "system.components.common.textField"
+local InputField = require "system.components.common.inputField"
 -- OOS
 local component = require "component"
 local gpu       = component.gpu
@@ -35,7 +35,7 @@ function uiComponentsTest:constructor(properties, parameters)
         height = 1,
         onTouchCallback = function()
             properties.backgroundColor = 0xFF0000
-            properties:renderWindow()
+            properties:render()
         end
     })
     properties.components[#properties.components + 1] = testButton1
@@ -49,7 +49,7 @@ function uiComponentsTest:constructor(properties, parameters)
         height = 1,
         onTouchCallback = function()
             properties.backgroundColor = 0x00FF00
-            properties:renderWindow()
+            properties:render()
         end
     })
     properties.components[#properties.components + 1] = testButton2
@@ -63,7 +63,7 @@ function uiComponentsTest:constructor(properties, parameters)
         height = 1,
         onTouchCallback = function()
             properties.backgroundColor = 0x0000FF
-            properties:renderWindow()
+            properties:render()
         end
     })
     properties.components[#properties.components + 1] = testButton3
@@ -79,7 +79,7 @@ function uiComponentsTest:constructor(properties, parameters)
             math.randomseed(os.time())
 
             properties.backgroundColor = math.floor(math.random() * 16777215)
-            properties:renderWindow()
+            properties:render()
         end
     })
     properties.components[#properties.components + 1] = testButton4
@@ -127,7 +127,7 @@ function uiComponentsTest:constructor(properties, parameters)
         doLabelRenderOnUnactive = false,
         onTouchCallback         = function (state)
             testTextField2.textForegroundColor = state and 0x00AA00 or 0xAA0000
-            properties:renderWindow()
+            properties:render()
         end
     })
     properties.components[#properties.components + 1] = testSwitch2

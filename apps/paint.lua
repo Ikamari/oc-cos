@@ -4,7 +4,7 @@
 
 -- COS
 local Window        = require "system.window"
-local ClickableZone = require "system.ui.clickableZone"
+local ClickableZone = require "system.components.clickableZone"
 -- OOS
 local component     = require "component"
 local gpu           = component.gpu

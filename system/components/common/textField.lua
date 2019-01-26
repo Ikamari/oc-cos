@@ -3,7 +3,7 @@
 --
 
 -- COS
-local UIComponent   = require "system.ui.uiComponent"
+local UIComponent   = require "system.components.component"
 local StringHelper  = require "system.helpers.stringHelper"
 -- OOS
 local component     = require "component"

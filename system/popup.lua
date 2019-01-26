@@ -4,27 +4,11 @@
 
 -- COS
 local Window    = require "system.window"
+local constants = require "system.constants"
 -- OOS
 local component = require "component"
 local gpu       = component.gpu
 local screenWidth, screenHeight = gpu.getResolution()
-
-POP_UP_COLORS = {
-    defaultFrameColor      = 0x555547,
-    defaultBackgroundColor = 0x282828,
-    defaultForegroundColor = 0xa59c83,
-    defaultWindowNameColor = 0xa59c83,
-
-    warningFrameColor      = 0x555547,
-    warningBackgroundColor = 0x282828,
-    warningForegroundColor = 0xa59c83,
-    warningWindowNameColor = 0xCDCD00,
-
-    errorFrameColor        = 0x555547,
-    errorBackgroundColor   = 0x282828,
-    errorForegoundColor    = 0xa59c83,
-    errorWindowNameColor   = 0xDC143C,
-}
 
 local PopUp = Window:inherit({
     -- Properties
@@ -50,10 +34,10 @@ function PopUp:constructor(properties, parameters)
     properties.type       = parameters.type or "default"
 
     -- Define which colors must be used in pop-up
-    properties.frameColor      = POP_UP_COLORS[properties.type .. "FrameColor"]      or properties.frameColor
-    properties.backgroundColor = POP_UP_COLORS[properties.type .. "BackgroundColor"] or properties.backgroundColor
-    properties.foregroundColor = POP_UP_COLORS[properties.type .. "ForegroundColor"] or properties.foregroundColor
-    properties.windowNameColor = POP_UP_COLORS[properties.type .. "WindowNameColor"] or properties.windowNameColor
+    properties.frameColor      = properties.frameColor
+    properties.backgroundColor = properties.backgroundColor
+    properties.foregroundColor = properties.foregroundColor
+    properties.windowNameColor = constants[properties.type .. "StringColor"] or properties.windowNameColor
 end
 
 function PopUp:renderContent(hex)

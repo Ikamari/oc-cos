@@ -4,7 +4,7 @@
 
 -- COS
 local Object        = require "system.main.object"
-local ClickableZone = require "system.ui.clickableZone"
+local ClickableZone = require "system.components.clickableZone"
 -- OOS
 local event         = require "event"
 local component     = require "component"
@@ -23,11 +23,11 @@ local Window = Object:inherit({
     windowNameColor   = 0xa59c83,
     closeButtonColor  = 0x555547,
 
-    windowName        = "Window",
+    windowName        = "Окно",
     windowNameIndent  = 1,    -- "left margin" in columns
     autoSize          = true, -- if true, then windowWidth = screenWidth - widnowX * 2 (same with height)
 
-    doWindowFrameRender = true,
+    doFrameRender       = true,
     doBackgroundRender  = true,
     doWindowNameRender  = true,
     doCloseButtonRender = true,
@@ -46,13 +46,12 @@ function Window:constructor(properties, parameters)
     properties = properties or self
     parameters = parameters or {}
 
-    properties.system = parameters.system
+
+
+    properties.system  = parameters.system
 
     properties.windowX = parameters.windowX or properties.windowX
     properties.windowY = parameters.windowY or properties.windowY
-
-    properties.inheritBackgroundColor = gpu.getBackground()
-    properties.inheritForegroundColor = gpu.getForeground()
 
     if properties.autoSize then
         properties.windowWidth  = screenWidth  - (properties.windowX * 2 - 1)
@@ -70,39 +69,43 @@ function Window:constructor(properties, parameters)
     properties.clickableZones  = {}
     properties.components      = {}
     properties.inputComponents = {}
+    properties.events          = {}
+
+    if properties.doCloseButtonRender then
+        properties.closeButtonX = properties.windowX + properties.windowWidth - properties.closeButtonIndent - 1
+        local buttonPoint = ClickableZone:new(_, {
+            x      = properties.closeButtonX + 1,
+            y      = properties.windowY,
+            type   = "point",
+            parent = properties,
+            callback = function (properties)
+                properties:terminate()
+            end
+        })
+        properties.clickableZones[#properties.clickableZones + 1] = buttonPoint
+    end
+end
+
+function Window:terminate()
+    -- cancel all events
+    for key, eventId in pairs(self.events) do
+        event.cancel(eventId)
+    end
+
+    self.terminated = true
 end
 
 function Window:switchEventHandling()
     self.doEventHandling = not self.doEventHandling
 end
 
-function Window:renderWindow()
-    self:renderWindowBackground()
-    self:renderWindowFrame()
-    self:renderWindowName()
-    self:renderCloseButton()
-    self:renderContent()
-end
-
 function Window:renderCloseButton()
-    if not self.doCloseButtonRender then
+    if self.doCloseButtonRender == false then
         return false
     end
 
     gpu.setForeground(self.closeButtonColor)
-
-    local closeButtonX = self.windowX + self.windowWidth - self.closeButtonIndent - 1
-    gpu.set(closeButtonX, self.windowY, " × ")
-    local buttonPoint = ClickableZone:new(_, {
-        x      = closeButtonX + 1,
-        y      = self.windowY,
-        type   = "point",
-        parent = self,
-        callback = function (properties)
-            properties.terminated = true
-        end
-    })
-    self.clickableZones[#self.clickableZones + 1] = buttonPoint
+    gpu.set(self.closeButtonX, self.windowY, " × ")
 
     return true
 end
@@ -118,8 +121,8 @@ function Window:renderWindowName()
     return true
 end
 
-function Window:renderWindowFrame()
-    if not self.doWindowFrameRender then
+function Window:renderFrame()
+    if not self.doFrameRender then
         return false
     end
 
@@ -144,7 +147,7 @@ function Window:renderWindowFrame()
     return true
 end
 
-function Window:renderWindowBackground()
+function Window:renderBackground()
     if not self.doBackgroundRender then
         return false
     end
@@ -164,16 +167,11 @@ function Window:renderComponents()
     end
 end
 
-function Window:renderContent()
-    self:renderComponents()
-end
+function Window:renderContent() end
 
 function Window:processInterruptEvent()
     if self.doProcessInterruption then
---        gpu.setBackground(self.inheritBackroundColor)
---        gpu.setForeground(self.inheritForegroundColor)
---        gpu.fill(self.windowX, self.windowY, self.windowWidth, self.windowHeight, " ")
-        self.terminated = true
+        self:terminate()
     end
 end
 
@@ -197,8 +195,17 @@ function Window:processKeyDownEvent(address, char, code, playerName)
     end
 end
 
+function Window:render()
+    self:renderBackground()
+    self:renderFrame()
+    self:renderWindowName()
+    self:renderCloseButton()
+    self:renderComponents()
+    self:renderContent()
+end
+
 function Window:init()
-    self:renderWindow()
+    self:render()
 
     -- Main loop
     while true do

@@ -3,7 +3,7 @@
 --
 
 -- COS
-local Button        = require "system.ui.button"
+local Button        = require "system.components.common.button"
 local StringHelper  = require "system.helpers.stringHelper"
 -- OOS
 local component     = require "component"

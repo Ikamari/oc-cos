@@ -8,11 +8,11 @@ local Object  = require "system.main.object"
 local srl        = require "serialization"
 local filesystem = require "filesystem"
 
-local Config = Object:inherit({
+local ConfigHelper = Object:inherit({
     initialized = false
 })
 
-function Config:constructor(properties, parameters)
+function ConfigHelper:constructor(properties, parameters)
     -- Define which properties must be used (Needed for child classes that calls parent constructor)
     properties = properties or self
     parameters = parameters or {}
@@ -25,7 +25,11 @@ function Config:constructor(properties, parameters)
     properties.configsPath = parameters.rootPath .. "system/configs"
 end
 
-function Config:getConfigFileValues(configFilePath)
+function ConfigHelper:getConfigFileValues(configFilePath)
+    if not self.initialized then
+        error("Config manager must be initialized")
+    end
+    
     -- Check whether specified config file exists
     if (not filesystem.exists(configFilePath)) then
         error("Config file \"" .. configFilePath .. "\" does not exist")
@@ -39,11 +43,10 @@ function Config:getConfigFileValues(configFilePath)
 end
 
 -- Also can be used to create config file
-function Config:setConfigFileValues(configFilePath, serializedValues)
-    -- Check whether specified config file exists
---    if (not filesystem.exists(configFilePath)) then
---        error("Config file \"" .. configFilePath .. "\" already exist")
---    end
+function ConfigHelper:setConfigFileValues(configFilePath, serializedValues)
+    if not self.initialized then
+        error("Config manager must be initialized")
+    end
 
     -- Create new config file with specified values
     local configFile = io.open(configFilePath, "w")
@@ -51,14 +54,18 @@ function Config:setConfigFileValues(configFilePath, serializedValues)
     configFile:close()
 end
 
-function Config:exist(configName)
+function ConfigHelper:exist(configName)
+    if not self.initialized then
+        error("Config manager must be initialized")
+    end
+    
     local configFilePath = self.configsPath .. "/" .. configName .. ".cfg"
     return filesystem.exists(configFilePath)
 end
 
-function Config:create(configName, initialValues)
+function ConfigHelper:create(configName, initialValues)
     if not self.initialized then
-        error("Config object must be initialized")
+        error("Config manager must be initialized")
     end
 
     local configFilePath = self.configsPath .. "/" .. configName .. ".cfg"
@@ -67,9 +74,9 @@ function Config:create(configName, initialValues)
     self:setConfigFileValues(configFilePath, serialized)
 end
 
-function Config:get(configName, valueName)
+function ConfigHelper:get(configName, valueName)
     if not self.initialized then
-        error("Config object must be initialized")
+        error("Config manager must be initialized")
     end
 
     local configFilePath = self.configsPath .. "/" .. configName .. ".cfg"
@@ -83,9 +90,9 @@ function Config:get(configName, valueName)
     end
 end
 
-function Config:setValue(configName, valueName, newValue)
+function ConfigHelper:setValue(configName, valueName, newValue)
     if not self.initialized then
-        error("Config object must be initialized")
+        error("Config manager must be initialized")
     end
 
     local configFilePath = self.configsPath .. "/" .. configName .. ".cfg"
@@ -98,9 +105,9 @@ function Config:setValue(configName, valueName, newValue)
     self:setConfigFileValues(configFilePath, serialized)
 end
 
-function Config:setValues(configName, values)
+function ConfigHelper:setValues(configName, values)
     if not self.initialized then
-        error("Config object must be initialized")
+        error("Config manager must be initialized")
     end
 
     local configFilePath = self.configsPath .. "/" .. configName .. ".cfg"
@@ -115,4 +122,4 @@ function Config:setValues(configName, values)
     self:setConfigFileValues(configFilePath, serialized)
 end
 
-return Config
+return ConfigHelper

@@ -3,14 +3,14 @@
 --
 
 -- COS
-local Component    = require "system.component"
+local Object       = require "system.main.object"
 local constants    = require "system.constants"
 local StringHelper = require "system.helpers.stringHelper"
 -- OOS
 local component = require "component"
 local gpu       = component.gpu
 
-local Shortcut = Component:inherit({
+local Shortcut = Object:inherit({
     icon       = false,
     label      = "Shortcut",
     isSelected = false,
@@ -70,7 +70,7 @@ function Shortcut:renderBackground()
     return true
 end
 
-function Shortcut:renderContent()
+function Shortcut:render()
     self:renderBackground()
     self:renderLabel()
     self:renderIcon()
