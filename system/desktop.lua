@@ -66,7 +66,7 @@ function Desktop:constructor(properties, parameters)
             label = "Уведомление",
             parameters = {
                 windowName = "Уведомление",
-                text       = "-",
+                text       = "Ура! Наконец-то я могу вместить себе больше одной строчки текста! Долой этот чёртов хардкод! (Теперь бы ещё поддержку \"\\n\" и было бы вообще шикарно)",
                 type       = "default"
             }
         },

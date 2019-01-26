@@ -17,8 +17,7 @@ local InputField = UIComponent:inherit({
     textIndent = 2,
     focused    = false,
     cursorX    = nil,
-    cursorY    = nil,
-    blinkerId  = nil
+    cursorY    = nil
 })
 
 function InputField:constructor(properties, parameters)
@@ -106,7 +105,7 @@ function InputField:onTouch(parameters)
 end
 
 function InputField:onFailedTouch()
-    if (self.blinkerId) then
+    if (self.focused) then
         self:updateCursor(false)
     end
 end
@@ -198,12 +197,11 @@ function InputField:updateCursor(enable, x, y)
                 gpu.setBackground(color1)
                 gpu.set(self.cursorX, self.cursorY, character)
             end
-            self.blinkerId = event.timer(0.5, callback, math.huge)
+            self.parent:addEvent(event.timer(0.5, callback, math.huge), "blinker")
         end
     else
         self.focused = false
-        event.cancel(self.blinkerId)
-        self.blinkerId = nil
+        self.parent:cancelEvent("blinker")
     end
     self:renderBackground()
     self:renderLines()

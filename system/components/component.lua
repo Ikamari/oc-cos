@@ -17,13 +17,13 @@ function UIComponent:constructor(properties, parameters)
     parameters = parameters or {}
 
     if (not parameters.parent and properties.mustHaveParentReference) then
-        error("UI element must receive reference to it's parent as parameter")
+        error("Component must receive reference to it's parent as parameter")
     end
     properties.parent = parameters.parent
 
     if (not properties.hasDefaultSize) then
         if type(parameters.width) ~= "number" or type(parameters.height) ~= "number" then
-            error("UI element must receive \"width\" and height\" number parameters")
+            error("Component must receive \"width\" and height\" number parameters")
         end
 
         properties.width  = parameters.width
@@ -31,14 +31,17 @@ function UIComponent:constructor(properties, parameters)
     end
 
     if type(parameters.posX) ~= "number" or type(parameters.posY) ~= "number" then
-        error("UI element must receive \"posX\" and \"posY\" number parameters")
+        error("Component must receive \"posX\" and \"posY\" number parameters")
     end
 
     properties.posX = parameters.posX
     properties.posY = parameters.posY
 
     if parameters.onTouchCallback and type(parameters.onTouchCallback) ~= "function" then
-        error("Button must receive \"onTouchCallback\" parameter of \"function\" type")
+        error("Component must receive \"onTouchCallback\" parameter of \"function\" type")
+    end
+    if parameters.onFailedTouchCallbac and type(parameters.onFailedTouchCallback) ~= "function" then
+        error("Component must receive \"onFailedTouchCallback\" parameter of \"function\" type")
     end
 
     properties.onTouchCallback       = parameters.onTouchCallback or function() end

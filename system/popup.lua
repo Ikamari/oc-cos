@@ -5,6 +5,7 @@
 -- COS
 local Window    = require "system.window"
 local constants = require "system.constants"
+local TextField  = require "system.components.common.textField"
 -- OOS
 local component = require "component"
 local gpu       = component.gpu
@@ -38,11 +39,16 @@ function PopUp:constructor(properties, parameters)
     properties.backgroundColor = properties.backgroundColor
     properties.foregroundColor = properties.foregroundColor
     properties.windowNameColor = constants[properties.type .. "StringColor"] or properties.windowNameColor
-end
 
-function PopUp:renderContent(hex)
-    gpu.setForeground(hex and hex or self.foregroundColor)
-    gpu.set(self.contentX, self.contentY, self.text)
+    local textField = TextField:new(_, {
+        parent = properties,
+        posX   = properties.contentX,
+        posY   = properties.contentY,
+        width  = properties.contentWidth,
+        height = properties.contentHeight,
+        text   = properties.text
+    })
+    properties.components[#properties.components + 1] = textField
 end
 
 return PopUp

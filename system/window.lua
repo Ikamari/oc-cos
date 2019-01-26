@@ -95,6 +95,19 @@ function Window:terminate()
     self.terminated = true
 end
 
+function Window:addEvent(eventId, eventKey)
+    eventKey = eventKey or #self.events
+    self.events[eventKey] = eventId
+end
+
+function Window:cancelEvent(eventKey)
+    if self.events[eventKey] then
+        event.cancel(self.events[eventKey])
+        self.events[eventKey] = nil
+    end
+    return false
+end
+
 function Window:switchEventHandling()
     self.doEventHandling = not self.doEventHandling
 end
