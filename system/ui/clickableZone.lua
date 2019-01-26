@@ -57,6 +57,8 @@ function ClickableZone:check(x, y, parameters)
     end
 
     parameters = parameters or {}
+    parameters["x"] = x
+    parameters["y"] = y
 
     if self.debug then
         print("x:", x, "y:", y)

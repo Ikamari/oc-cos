@@ -8,19 +8,31 @@ function StringHelper:getLength(str)
     return select(2, string.gsub(str, "[^\128-\193]", ""))
 end
 
-function StringHelper:trim(str, maxLength)
+function StringHelper:removeFromStart(str, amount)
+    return str:gsub(".[\128-\191]*", "", amount)
+end
+
+function StringHelper:removeFromEnd(str, amount)
+    local newStr = str
+    for i = 1, amount do
+        newStr = newStr:gsub(".[\128-\191]*$", "")
+    end
+    return newStr
+end
+
+function StringHelper:trim(str, maxLength, addDots)
     if self:getLength(str) > maxLength then
         local newStr = "";
         local i = 0
         for c in str:gmatch(".[\128-\191]*") do
-            if i == maxLength - 1 then
+            if i == maxLength - (addDots ~= false and 1 or 0) then
                 break
             else
                 i = i + 1
                 newStr = newStr .. c
             end
         end
-        return newStr .. "…"
+        return newStr .. (addDots ~= false and "…" or "")
 
     else
         return str

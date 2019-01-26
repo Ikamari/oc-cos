@@ -41,7 +41,8 @@ function UIComponent:constructor(properties, parameters)
         error("Button must receive \"onTouchCallback\" parameter of \"function\" type")
     end
 
-    properties.onTouchCallback = parameters.onTouchCallback or function() end
+    properties.onTouchCallback       = parameters.onTouchCallback or function() end
+    properties.onFailedTouchCallback = parameters.onFailedTouchCallback or function() end
 
     local clickableZone = ClickableZone:new(_, {
         x      = properties.posX,
@@ -50,8 +51,11 @@ function UIComponent:constructor(properties, parameters)
         height = properties.height,
         type   = "zone",
         parent = properties,
-        callback = function (properties, _, _)
-            properties:onTouch()
+        callback = function (properties, _, parameters)
+            properties:onTouch(parameters)
+        end,
+        onFailCallback = function (properties, _, parameters)
+            properties:onFailedTouch(parameters)
         end
     })
     properties.clickableZone = clickableZone
@@ -59,6 +63,10 @@ end
 
 function UIComponent:onTouch()
     self.onTouchCallback()
+end
+
+function UIComponent:onFailedTouch()
+    self.onFailedTouchCallback()
 end
 
 function UIComponent:render()

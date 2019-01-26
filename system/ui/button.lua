@@ -49,9 +49,6 @@ function Button:renderFrame()
     -- bottom
     gpu.fill(self.posX, self.posY + self.height, self.width, 1, "▆")
 
-    gpu.setForeground(self.frameColor)
-    gpu.setBackground(self.parent.backgroundColor)
-
     return true
 end
 

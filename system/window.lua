@@ -67,9 +67,9 @@ function Window:constructor(properties, parameters)
     properties.contentWidth  = properties.windowWidth  - (properties.renderSideBorders and 8 or 4)
     properties.contentHeight = properties.windowHeight - 4
 
-    properties.clickableZones     = {}
-    properties.components         = {}
-    properties.editableComponents = {}
+    properties.clickableZones  = {}
+    properties.components      = {}
+    properties.inputComponents = {}
 end
 
 function Window:switchEventHandling()
@@ -159,7 +159,7 @@ function Window:renderComponents()
     for key, uiComponent in pairs(self.components) do
         uiComponent:render()
     end
-    for key, uiComponent in pairs(self.editableComponents) do
+    for key, uiComponent in pairs(self.inputComponents) do
         uiComponent:render()
     end
 end
@@ -177,21 +177,25 @@ function Window:processInterruptEvent()
     end
 end
 
-function Window:processTouchEvent(a, b, c, d)
+function Window:processTouchEvent(address, posX, posY, button, playerName)
     for key, zone in pairs(self.clickableZones) do
-        zone:check(b, c)
+        zone:check(posX, posY)
     end
     for key, uiComponent in pairs(self.components) do
-        uiComponent.clickableZone:check(b, c)
+        uiComponent.clickableZone:check(posX, posY)
     end
-    for key, uiComponent in pairs(self.editableComponents) do
-        uiComponent.clickableZone:check(b, c)
+    for key, uiComponent in pairs(self.inputComponents) do
+        uiComponent.clickableZone:check(posX, posY)
     end
 end
 
 function Window:processDragEvent() end
 
-function Window:processKeyDownEvent() end
+function Window:processKeyDownEvent(address, char, code, playerName)
+    for key, uiComponent in pairs(self.inputComponents) do
+        uiComponent:onKeyDown(char, code)
+    end
+end
 
 function Window:init()
     self:renderWindow()
@@ -199,15 +203,15 @@ function Window:init()
     -- Main loop
     while true do
         if self.doEventHandling then
-            local id, a, b, c, d = event.pullMultiple("interrupted", "touch", "drag", "key_down")
+            local id, a, b, c, d, e = event.pullMultiple("interrupted", "touch", "drag", "key_down")
             if id == "interrupted" then
                 self:processInterruptEvent()
             elseif id == "drag" then
-                self:processDragEvent(a, b, c, d)
+                self:processDragEvent(a, b, c, d, e)
             elseif id == "touch" then
-                self:processTouchEvent(a, b, c, d)
+                self:processTouchEvent(a, b, c, d, e)
             elseif id == "key_down" then
-                self:processKeyDownEvent(a, b, c, d)
+                self:processKeyDownEvent(a, b, c, d, e)
             end
         end
         if self.terminated then

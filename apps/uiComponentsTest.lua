@@ -3,10 +3,11 @@
 --
 
 -- COS
-local Window    = require "system.window"
-local Button    = require "system.ui.button"
-local Switch    = require "system.ui.switch"
-local TextField = require "system.ui.textField"
+local Window     = require "system.window"
+local Button     = require "system.ui.button"
+local Switch     = require "system.ui.switch"
+local TextField  = require "system.ui.textField"
+local InputField = require "system.ui.inputField"
 -- OOS
 local component = require "component"
 local gpu       = component.gpu
@@ -130,6 +131,16 @@ function uiComponentsTest:constructor(properties, parameters)
         end
     })
     properties.components[#properties.components + 1] = testSwitch2
+
+    local testInputField1 = InputField:new(_, {
+        parent = properties,
+        posX   = properties.contentX,
+        posY   = properties.contentY + 18,
+        width  = 45,
+        height = 2,
+        placeholder = "Введи сюда что-то"
+    })
+    properties.inputComponents[#properties.inputComponents + 1] = testInputField1
 end
 
 return uiComponentsTest
