@@ -65,6 +65,8 @@ function InputField:constructor(properties, parameters)
         [203] = function(currentLine)
             if (properties.cursorX - 1 >= properties.contentX + properties.contentSideIndent) then
                 properties:updateCursor(true, properties.cursorX - 1, properties.cursorY)
+            elseif (properties.cursorY - 1 >= properties.contentY) then
+                properties:updateCursor(true, properties.cursorX + properties.linesLength[currentLine - 1], properties.cursorY - 1)
             end
         end,
 
@@ -72,6 +74,8 @@ function InputField:constructor(properties, parameters)
         [205] = function(currentLine)
             if (properties.cursorX + 1 <= properties.contentX + properties.contentSideIndent + properties.linesLength[currentLine]) then
                 properties:updateCursor(true, properties.cursorX + 1, properties.cursorY)
+            elseif (properties.cursorY + 1 < properties.contentY + properties.maxLines) then
+                properties:updateCursor(true, properties.contentX + properties.contentSideIndent, properties.cursorY + 1)
             end
         end,
 
@@ -85,6 +89,8 @@ function InputField:constructor(properties, parameters)
                 properties.lines[currentLine] = firstPart .. secondPart
                 properties.linesLength[currentLine] = properties.linesLength[currentLine] - 1
                 properties:updateCursor(true, properties.cursorX - 1, properties.cursorY)
+            elseif (properties.cursorY - 1 >= properties.contentY and retry ~= true) then
+                properties:updateCursor(true, properties.cursorX + properties.linesLength[currentLine - 1], properties.cursorY - 1)
             end
         end
     }
