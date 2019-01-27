@@ -19,23 +19,23 @@ function Switch:constructor(properties, parameters)
     -- Call parent constructor
     Button:constructor(properties, parameters)
 
-    properties.activeLabelBackgroundColor   = parameters.activeLabelBackgroundColor   or 0x7e7e7e
-    properties.unactiveLabelBackgroundColor = parameters.unactiveLabelBackgroundColor or 0x7e7e7e
-    properties.activeLabelForegroundColor   = parameters.activeLabelForegroundColor   or 0x282828
-    properties.unactiveLabelForegroundColor = parameters.unactiveLabelForegroundColor or 0x282828
+    properties.activeTextBackgroundColor   = parameters.activeTextBackgroundColor   or 0x7e7e7e
+    properties.unactiveTextBackgroundColor = parameters.unactiveTextBackgroundColor or 0x7e7e7e
+    properties.activeTextForegroundColor   = parameters.activeTextForegroundColor   or 0x282828
+    properties.unactiveTextForegroundColor = parameters.unactiveTextForegroundColor or 0x282828
 
-    properties.activeLabel   = parameters.activeLabel   or "Вкл"
-    properties.unactiveLabel = parameters.unactiveLabel or "Выкл"
+    properties.activeText   = parameters.activeText   or "Вкл"
+    properties.unactiveText = parameters.unactiveText or "Выкл"
 
-    if parameters.doLabelRenderOnActive ~= nil then
-        properties.doLabelRenderOnActive = parameters.doLabelRenderOnActive
+    if parameters.doTextRenderOnActive ~= nil then
+        properties.doTextRenderOnActive = parameters.doTextRenderOnActive
     else
-        properties.doLabelRenderOnActive = true
+        properties.doTextRenderOnActive = true
     end
-    if parameters.doLabelRenderOnUnactive ~= nil then
-        properties.doLabelRenderOnUnactive = parameters.doLabelRenderOnUnactive
+    if parameters.doTextRenderOnUnactive ~= nil then
+        properties.doTextRenderOnUnactive = parameters.doTextRenderOnUnactive
     else
-        properties.doLabelRenderOnUnactive = true
+        properties.doTextRenderOnUnactive = true
     end
 
     properties.standalone = parameters.standalone or true
@@ -54,37 +54,37 @@ function Switch:constructor(properties, parameters)
         properties.tableKey = parameters.tableKey
     end
 
-    local activeLabelLength = StringHelper:getLength(properties.activeLabel)
-    if activeLabelLength + 2 < properties.width then
-        properties.activeLabelIndent = math.floor((properties.width - activeLabelLength) / 2)
+    local activeLabelLength = StringHelper:getLength(properties.activeText)
+    if activeLabelLength + 2 < properties.contentWidth then
+        properties.activeTextIndent = math.floor((properties.contentWidth - activeLabelLength) / 2)
     else
-        properties.activeLabelIndent = 1
-        properties.activeLabel = StringHelper:trim(properties.activeLabel, properties.width - 2)
+        properties.activeTextIndent = 0
+        properties.activeText = StringHelper:trim(properties.activeText, properties.contentWidth - 2)
     end
 
-    local unactiveLabelLength = StringHelper:getLength(properties.unactiveLabel)
-    if unactiveLabelLength + 2 < properties.width then
-        properties.unactiveLabelIndent = math.floor((properties.width - unactiveLabelLength) / 2)
+    local unactiveLabelLength = StringHelper:getLength(properties.unactiveText)
+    if unactiveLabelLength + 2 < properties.contentWidth then
+        properties.unactiveTextIndent = math.floor((properties.contentWidth - unactiveLabelLength) / 2)
     else
-        properties.unactiveLabelIndent = 1
-        properties.unactiveLabel = StringHelper:trim(properties.unactiveLabel, properties.width - 2)
+        properties.unactiveTextIndent = 0
+        properties.unactiveText = StringHelper:trim(properties.unactiveText, properties.contentWidth - 2)
     end
 end
 
-function Switch:renderLabel(state)
-    if (state and not self.doLabelRenderOnActive)       then return false end
-    if (not state and not self.doLabelRenderOnUnactive) then return false end
+function Switch:renderContent(state)
+    if (state and not self.doTextRenderOnActive)       then return false end
+    if (not state and not self.doTextRenderOnUnactive) then return false end
 
-    gpu.setForeground(state and self.activeLabelForegroundColor or self.unactiveLabelForegroundColor)
-    gpu.setBackground(state and self.activeLabelBackgroundColor or self.unactiveLabelBackgroundColor)
-    gpu.set(self.posX + (state and self.activeLabelIndent or self.unactiveLabelIndent), self.posY, state and self.activeLabel or self.unactiveLabel)
+    gpu.setForeground(state and self.activeTextForegroundColor or self.unactiveTextForegroundColor)
+    gpu.setBackground(state and self.activeTextBackgroundColor or self.unactiveTextBackgroundColor)
+    gpu.set(self.contentX + (state and self.activeTextIndent or self.unactiveTextIndent), self.contentY, state and self.activeText or self.unactiveText)
 
     return true
 end
 
 function Switch:renderBackground(state)
-    gpu.setBackground(state and self.activeLabelBackgroundColor or self.unactiveLabelBackgroundColor)
-    gpu.fill(self.posX, self.posY, self.width, 1, " ")
+    gpu.setBackground(state and self.activeTextBackgroundColor or self.unactiveTextBackgroundColor)
+    gpu.fill(self.posX, self.posY, self.width, self.height, " ")
 
     return true
 end
@@ -110,7 +110,7 @@ function Switch:render()
 
     self:renderBackground(state)
     self:renderFrame(state)
-    self:renderLabel(state)
+    self:renderContent(state)
 end
 
 return Switch

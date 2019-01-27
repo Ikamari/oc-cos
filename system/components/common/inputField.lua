@@ -12,12 +12,17 @@ local component     = require "component"
 local gpu           = component.gpu
 
 local InputField = UIComponent:inherit({
-    text = "",
-    textLength = 0,
-    textIndent = 2,
-    focused    = false,
-    cursorX    = nil,
-    cursorY    = nil
+    contentSideIndent       = 1, -- left and right margin for content
+
+    doTopFramePartRender    = true,
+    doBottomFramePartRender = true,
+    doLeftFramePartRender   = true,
+    doRightFramePartRender  = true,
+
+    focused   = false,
+    blinked   = false,
+    cursorX   = nil,
+    cursorY   = nil
 })
 
 function InputField:constructor(properties, parameters)
@@ -28,13 +33,8 @@ function InputField:constructor(properties, parameters)
     -- Call parent constructor
     UIComponent:constructor(properties, parameters)
 
-    properties.frameColor           = parameters.frameColor or 0x555547
-    properties.backgroundColor      = parameters.backgroundColor  or 0x282828
-    properties.textBackgroundColor  = parameters.backgroundColor  or 0x7e7e7e
-    properties.textForegroundColor  = parameters.foregroundColor  or 0x282828
-
-    properties.maxLineLength = properties.width - properties.textIndent * 2
-    properties.maxLines      = properties.height
+    properties.maxLineLength = properties.contentWidth - 3
+    properties.maxLines      = properties.contentHeight
     properties.lines         = {}
     properties.linesLength   = {}
 
@@ -45,9 +45,61 @@ function InputField:constructor(properties, parameters)
 
     properties.placeholder      = parameters.placeholder ~= "" and StringHelper:trim(parameters.placeholder, properties.maxLineLength) or ""
     properties.placeholderColor = parameters.placeholderColor or 0xa59c83
+
+    properties.keyActions = {
+        -- Up
+        [200] = function(currentLine)
+            if (properties.cursorY - 1 >= properties.contentY) then
+                properties:updateCursor(true, properties.cursorX, properties.cursorY - 1)
+            end
+        end,
+
+        -- down or enter
+        [208] = function(currentLine)
+            if (properties.cursorY + 1 < properties.contentY + properties.maxLines) then
+                properties:updateCursor(true, properties.cursorX, properties.cursorY + 1)
+            end
+        end,
+
+        -- left
+        [203] = function(currentLine)
+            if (properties.cursorX - 1 >= properties.contentX + properties.contentSideIndent) then
+                properties:updateCursor(true, properties.cursorX - 1, properties.cursorY)
+            end
+        end,
+
+        -- right
+        [205] = function(currentLine)
+            if (properties.cursorX + 1 <= properties.contentX + properties.contentSideIndent + properties.linesLength[currentLine]) then
+                properties:updateCursor(true, properties.cursorX + 1, properties.cursorY)
+            end
+        end,
+
+        -- backspace
+        [14] = function(currentLine)
+            if (properties.cursorX ~= properties.contentX + properties.contentSideIndent) then
+                local charsToRemoveFromEnd = (properties.linesLength[currentLine] + 1) - (properties.cursorX - (properties.contentX + properties.contentSideIndent))
+                local charsToRemoveFromStart = properties.cursorX - (properties.contentX + properties.contentSideIndent)
+                local firstPart  = StringHelper:removeFromEnd(properties.lines[currentLine], charsToRemoveFromEnd)
+                local secondPart = StringHelper:removeFromStart(properties.lines[currentLine], charsToRemoveFromStart)
+                properties.lines[currentLine] = firstPart .. secondPart
+                properties.linesLength[currentLine] = properties.linesLength[currentLine] - 1
+                properties:updateCursor(true, properties.cursorX - 1, properties.cursorY)
+            end
+        end
+    }
+    properties.keyActions[28] = properties.keyActions[208]
+
+    properties.blinkerCallback = function ()
+        properties.blinked = not properties.blinked
+        local character = gpu.get(properties.cursorX, properties.cursorY)
+        gpu.setForeground(properties.textForegroundColor)
+        gpu.setBackground(properties.blinked and properties.placeholderColor or properties.textBackgroundColor)
+        gpu.set(properties.cursorX, properties.cursorY, character)
+    end
 end
 
-function InputField:renderLines()
+function InputField:renderContent()
     gpu.setBackground(self.textBackgroundColor)
     gpu.setForeground(self.textForegroundColor)
     local drawPlaceholder = true
@@ -55,49 +107,16 @@ function InputField:renderLines()
     for key, line in pairs(self.lines) do
         if (line ~= "") then
             drawPlaceholder = false
-            gpu.set(self.posX + self.textIndent, self.posY + key, line)
+            gpu.set(self.contentX + self.contentSideIndent, self.contentY + key, line)
         end
     end
 
     if (drawPlaceholder and self.focused ~= true) then
         gpu.setForeground(self.placeholderColor)
-        gpu.set(self.posX + self.textIndent, self.posY, self.placeholder)
+        gpu.set(self.contentX + self.contentSideIndent, self.contentY, self.placeholder)
     end
 
     return true
-end
-
-function InputField:renderFrame()
-    gpu.setForeground(self.parent.backgroundColor)
-    gpu.setBackground(self.frameColor)
-
-    -- bottom
-    gpu.fill(self.posX, self.posY + self.height, self.width, 1, "▆")
-    -- right
-    gpu.fill(self.posX + self.width - 1, self.posY, 1, self.height, " ")
-    -- left
-    gpu.fill(self.posX, self.posY, 1, self.height, " ")
-
-    gpu.setForeground(self.frameColor)
-    gpu.setBackground(self.parent.backgroundColor)
-
-    -- top
-    gpu.fill(self.posX, self.posY - 1, self.width, 1, "▂")
-
-    return true
-end
-
-function InputField:renderBackground()
-    gpu.setBackground(self.textBackgroundColor)
-    gpu.fill(self.posX + 1, self.posY, self.width - 2, self.height, " ")
-
-    return true
-end
-
-function InputField:render()
-    self:renderBackground()
-    self:renderFrame()
-    self:renderLines()
 end
 
 function InputField:onTouch(parameters)
@@ -112,51 +131,17 @@ end
 
 function InputField:onKeyDown(char, code)
     if (self.focused) then
-        --print(char, code)
-        local currentLine = self.cursorY - self.posY
+        local currentLine = self.cursorY - self.contentY
 
-        -- up
-        if (code == 200) then
-            if (self.cursorY - 1 >= self.posY) then self:updateCursor(true, self.cursorX, self.cursorY - 1) end
-            return
-        end
-
-        -- down or enter
-        if (code == 208 or code == 28) then
-            if (self.cursorY + 1 < self.posY + self.maxLines) then self:updateCursor(true, self.cursorX, self.cursorY + 1) end
-            return
-        end
-
-        -- left
-        if (code == 203) then
-            if (self.cursorX - 1 >= self.posX + self.textIndent) then self:updateCursor(true, self.cursorX - 1, self.cursorY) end
-            return
-        end
-
-        -- right
-        if (code == 205) then
-            if (self.cursorX + 1 <= self.posX + self.textIndent + self.linesLength[currentLine]) then self:updateCursor(true, self.cursorX + 1, self.cursorY) end
-            return
-        end
-
-        -- backspace
-        if (code == 14) then
-            if (self.cursorX ~= self.posX + self.textIndent) then
-                local charsToRemoveFromEnd    = (self.linesLength[currentLine] + 1) - (self.cursorX - (self.posX + self.textIndent))
-                local charsToRemoveFromStart  = self.cursorX - (self.posX + self.textIndent)
-                local firstPart  = StringHelper:removeFromEnd(self.lines[currentLine], charsToRemoveFromEnd)
-                local secondPart = StringHelper:removeFromStart(self.lines[currentLine], charsToRemoveFromStart)
-                self.lines[currentLine] = firstPart .. secondPart
-                self.linesLength[currentLine] = self.linesLength[currentLine] - 1
-                self:updateCursor(true, self.cursorX - 1, self.cursorY)
-            end
+        if (self.keyActions[code]) then
+            self.keyActions[code](currentLine)
             return
         end
 
         if (char ~= 0) then
             if (self.linesLength[currentLine] < self.maxLineLength) then
-                local charsToRemoveFromEnd    = self.linesLength[currentLine] - (self.cursorX - (self.posX + self.textIndent))
-                local charsToRemoveFromStart  = self.cursorX - (self.posX + self.textIndent)
+                local charsToRemoveFromEnd    = self.linesLength[currentLine] - (self.cursorX - (self.contentX + self.contentSideIndent))
+                local charsToRemoveFromStart  = self.cursorX - (self.contentX + self.contentSideIndent)
                 local firstPart  = StringHelper:removeFromEnd(self.lines[currentLine], charsToRemoveFromEnd)
                 local secondPart = StringHelper:removeFromStart(self.lines[currentLine], charsToRemoveFromStart)
                 self.lines[currentLine]       = firstPart .. unicode.char(char) .. secondPart
@@ -169,42 +154,36 @@ end
 
 function InputField:updateCursor(enable, x, y)
     if (enable) then
-        gpu.setBackground(self.textBackgroundColor)
-        gpu.setForeground(self.placeholderColor)
+        self.blinked = false
 
         -- Define cursor's y
-        if (y < self.posY) then
-            self.cursorY = self.posY
-        elseif (y > self.posY + self.maxLines) then
-            self.cursorY = self.posY + self.maxLines
+        if (y < self.contentY) then
+            self.cursorY = self.contentY
+        elseif (y > self.contentY + self.maxLines) then
+            self.cursorY = self.contentY + self.maxLines
         else
             self.cursorY = y
         end
         -- Define cursor's x
-        if (x < self.posX + self.textIndent) then
-            self.cursorX = self.posX + self.textIndent
-        elseif (x > self.posX + self.textIndent + self.linesLength[self.cursorY - self.posY]) then
-            self.cursorX = self.posX + self.textIndent + self.linesLength[self.cursorY - self.posY]
+        if (x < self.contentX + self.contentSideIndent) then
+            self.cursorX = self.contentX + self.contentSideIndent
+        elseif (x > self.contentX + self.contentSideIndent + self.linesLength[self.cursorY - self.contentY]) then
+            self.cursorX = self.contentX + self.contentSideIndent + self.linesLength[self.cursorY - self.contentY]
         else
             self.cursorX = x
         end
         
         if (self.focused == false) then
             self.focused = true
-            local callback = function ()
-                local character, color1, color2 = gpu.get(self.cursorX, self.cursorY)
-                gpu.setForeground(color2)
-                gpu.setBackground(color1)
-                gpu.set(self.cursorX, self.cursorY, character)
-            end
-            self.parent:addEvent(event.timer(0.5, callback, math.huge), "blinker")
+            self.parent:addEvent(event.timer(0.5, self.blinkerCallback, math.huge), "blinker")
         end
     else
         self.focused = false
         self.parent:cancelEvent("blinker")
     end
-    self:renderBackground()
-    self:renderLines()
+    self:render()
+    self.blinkerCallback()
+    self.blinked = false
 end
 
 return InputField

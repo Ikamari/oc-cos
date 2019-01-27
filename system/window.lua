@@ -61,9 +61,9 @@ function Window:constructor(properties, parameters)
         properties.windowHeight = parameters.windowHeight or properties.windowHeight
     end
 
-    properties.contentX      = properties.windowX + (properties.renderSideBorders and 4 or 2)
+    properties.contentX      = properties.windowX + 2
     properties.contentY      = properties.windowY + 2
-    properties.contentWidth  = properties.windowWidth  - (properties.renderSideBorders and 8 or 4)
+    properties.contentWidth  = properties.windowWidth  - 4
     properties.contentHeight = properties.windowHeight - 4
 
     properties.clickableZones  = {}

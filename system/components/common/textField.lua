@@ -9,7 +9,11 @@ local StringHelper  = require "system.helpers.stringHelper"
 local component     = require "component"
 local gpu           = component.gpu
 
-local TextField = UIComponent:inherit({})
+local TextField = UIComponent:inherit({
+    doFrameRender      = false,
+    doBackgroundRender = false,
+    contentSideIndent  = 0, -- left and right margin for content
+})
 
 function TextField:constructor(properties, parameters)
     -- Define which properties must be used (Needed for child classes that calls parent constructor)
@@ -29,25 +33,21 @@ end
 function TextField:updateText(text, properties)
     properties       = properties or self
     properties.text  = text
-    properties.lines = StringHelper:splitToLines(properties.text, properties.width, properties.height)
+    properties.lines = StringHelper:splitToLines(properties.text, properties.contentWidth, properties.contentHeight)
     properties:render()
 end
 
-function TextField:renderText()
+function TextField:renderContent()
     gpu.setForeground(self.textForegroundColor or self.parent.foregroundColor)
     gpu.setBackground(self.textBackgroundColor or self.parent.backgroundColor)
 
     local lineNumber = 0
     for _, line in pairs(self.lines) do
-        gpu.set(self.posX, self.posY + lineNumber, line)
+        gpu.set(self.contentX, self.contentY + lineNumber, line)
         lineNumber = lineNumber + 1
     end
 
     return true
-end
-
-function TextField:render()
-    self:renderText()
 end
 
 return TextField
