@@ -8,6 +8,7 @@ local component = require "component"
 local gpu       = component.gpu
 local screenWidth, screenHeight = gpu.getResolution()
 
+---@class PopUp : Window
 local PopUp = Window:inherit({
     -- Properties
     windowX      = screenWidth  * 0.25,

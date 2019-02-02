@@ -4,6 +4,7 @@ local Object  = require "system.main.object"
 local srl        = require "serialization"
 local filesystem = require "filesystem"
 
+---@class Config
 local ConfigHelper = Object:inherit({
     initialized = false
 })

@@ -13,6 +13,7 @@ local component     = require "component"
 local gpu           = component.gpu
 local screenWidth, screenHeight = gpu.getResolution()
 
+---@class Desktop : Window
 local Desktop = Window:inherit({
     -- Properties
     doFrameRender       = false,

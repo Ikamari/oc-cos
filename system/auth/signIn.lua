@@ -6,6 +6,7 @@ local Button     = require "system.components.common.button"
 local TextField  = require "system.components.common.textField"
 local LinedInputField = require "system.components.common.linedInputField"
 
+---@class SignIn : AuthForm
 local SignIn = AuthForm:inherit({})
 
 function SignIn:constructor(properties, parameters)

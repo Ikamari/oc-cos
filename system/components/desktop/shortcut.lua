@@ -6,6 +6,7 @@ local StringHelper = require "system.helpers.stringHelper"
 local component = require "component"
 local gpu       = component.gpu
 
+---@class Shortcut
 local Shortcut = Object:inherit({
     icon       = false,
     label      = "Shortcut",

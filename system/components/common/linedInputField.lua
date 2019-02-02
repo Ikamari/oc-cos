@@ -7,6 +7,7 @@ local event         = require "event"
 local component     = require "component"
 local gpu           = component.gpu
 
+---@class LinedInputField : UIComponent
 local LinedInputField = UIComponent:inherit({
     contentSideIndent       = 1, -- left and right margin for content
 

@@ -4,6 +4,7 @@ local UIComponent   = require "system.components.component"
 local component     = require "component"
 local gpu           = component.gpu
 
+---@class Line : UIComponent
 local Line = UIComponent:inherit({
     doFrameRender      = false,
     doBackgroundRender = false,

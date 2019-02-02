@@ -7,6 +7,8 @@ local component     = require "component"
 local gpu           = component.gpu
 local screenWidth, screenHeight = gpu.getResolution()
 
+---@class Window
+---@field public system OS
 local Window = Object:inherit({
     -- Properties
     terminated            = false,

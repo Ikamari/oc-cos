@@ -5,6 +5,7 @@ local ClickableZone = require "system.components.clickableZone"
 local component     = require "component"
 local gpu           = component.gpu
 
+---@class Paint : Window
 local Paint = Window:inherit({
     -- Properties
     windowName = "Рисовалка",

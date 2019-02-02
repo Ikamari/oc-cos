@@ -3,6 +3,7 @@ local Window   = require "system.window"
 -- OOS
 local computer = require "computer"
 
+---@class AuthForm : Window
 local AuthForm = Window:inherit({
     -- Properties
     doFrameRender       = false,

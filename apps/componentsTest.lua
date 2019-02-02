@@ -8,13 +8,14 @@ local LinedInputField = require "system.components.common.linedInputField"
 local component = require "component"
 local gpu       = component.gpu
 
-local uiComponentsTest = Window:inherit({
+---@class UIComponentsTest : Window
+local UIComponentsTest = Window:inherit({
     -- Properties
     windowName = "Тест UI компонентов"
     --
 })
 
-function uiComponentsTest:constructor(properties, parameters)
+function UIComponentsTest:constructor(properties, parameters)
     -- Define which properties must be used (Needed for child classes that calls parent constructor)
     properties = properties or self
     parameters = parameters or {}
@@ -140,4 +141,4 @@ function uiComponentsTest:constructor(properties, parameters)
     properties.inputComponents[#properties.inputComponents + 1] = testInputField1
 end
 
-return uiComponentsTest
+return UIComponentsTest

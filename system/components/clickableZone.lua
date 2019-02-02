@@ -1,5 +1,6 @@
 local Object = require "system.main.object"
 
+---@class ClickableZone
 local ClickableZone = Object:inherit({
     initialized = false,
     debug       = false

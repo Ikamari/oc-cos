@@ -5,6 +5,7 @@ local StringHelper  = require "system.helpers.stringHelper"
 local component     = require "component"
 local gpu           = component.gpu
 
+---@class Switch : Button
 local Switch = Button:inherit({})
 
 function Switch:constructor(properties, parameters)

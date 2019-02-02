@@ -5,6 +5,7 @@ local StringHelper  = require "system.helpers.stringHelper"
 local component     = require "component"
 local gpu           = component.gpu
 
+---@class TextField : UIComponent
 local TextField = UIComponent:inherit({
     doFrameRender      = false,
     doBackgroundRender = false,

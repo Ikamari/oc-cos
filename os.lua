@@ -9,6 +9,8 @@ local computer  = require "computer"
 local shell     = require "shell"
 local process   = require "process"
 
+---@class OS
+---@field public config Config
 local OS = Object:inherit({
     isRunning = false
 })

@@ -5,6 +5,7 @@ local StringHelper  = require "system.helpers.stringHelper"
 local component     = require "component"
 local gpu           = component.gpu
 
+---@class Button : UIComponent
 local Button = UIComponent:inherit({})
 
 function Button:constructor(properties, parameters)

@@ -6,6 +6,7 @@ local BoolHelper    = require "system.helpers.boolHelper"
 local component     = require "component"
 local gpu           = component.gpu
 
+---@class UIComponent
 local UIComponent = Object:inherit({
     mustHaveParentReference = true,
     hasDefaultSize          = false,
