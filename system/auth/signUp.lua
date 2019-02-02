@@ -173,6 +173,7 @@ function SignUp:submit()
         password = password
     })
     self.system.config:setValue("startup", "doFirstLaunchProcedure", false)
+    self.system.isLoggedIn = true
     self:terminate()
 end
 

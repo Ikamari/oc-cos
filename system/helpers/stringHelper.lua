@@ -38,21 +38,27 @@ end
 -- TODO: add newline support
 function StringHelper:splitToLines(str, maxLineLength, maxLines)
     maxLines = maxLines or 1
-    local words = require("text").tokenize(str)
+
     local lines = {}
     local currentLine = ""
     local currentLineLength = 0
 
-    for _, word in pairs(words) do
+    for word in str:gmatch("%S+\n?") do
         local wordLength       = self:getLength(word)
         ::again::
         local futureLineLength = wordLength + currentLineLength
         --print("Word:", word, "Word length:", wordLength, "Line num:", #lines, "Current text:", currentLine, "Current line length:", currentLineLength, "Future line length:", futureLineLength)
 
         if (futureLineLength <= maxLineLength) then
-            -- Add word to line if it's not too long
-            currentLineLength = currentLineLength + wordLength + (futureLineLength == maxLineLength and 0 or 1)
-            currentLine = currentLine .. word .. (futureLineLength == maxLineLength and "" or " ")
+            if (word:find("\n")) then
+                -- Go to next line if text has such symbol
+                currentLineLength = maxLineLength
+                currentLine = currentLine .. word:sub(0, -2)
+            else
+                -- Add word to line if it's not too long
+                currentLineLength = currentLineLength + wordLength + (futureLineLength == maxLineLength and 0 or 1)
+                currentLine = currentLine .. word .. (futureLineLength == maxLineLength and "" or " ")
+            end
         elseif (#lines + 1 == maxLines and currentLineLength <= maxLineLength) then
             -- If this is the last line, then insert trimmed word (if it's possible) and return lines
             if (currentLineLength ~= maxLineLength) then
@@ -64,6 +70,10 @@ function StringHelper:splitToLines(str, maxLineLength, maxLines)
         elseif (currentLineLength == 0) then
             -- If current line is empty, but word is too long, then add it to current line
             lines[#lines + 1] = word
+            -- Go to next line if text has such symbol
+            if (word:find("\n")) then
+                currentLineLength = maxLineLength
+            end
         else
             -- Go to next line and repeat this iteration
             lines[#lines + 1] = currentLine

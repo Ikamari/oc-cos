@@ -94,6 +94,7 @@ function SignIn:submit()
     local validPassword = self.system.config:get("user", "password")
 
     if (password == validPassword) then
+        self.system.isLoggedIn = true
         self:terminate()
     else
         self.components["errorTextField"].isVisible = true

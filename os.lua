@@ -4,6 +4,7 @@ local Desktop = require "system.desktop"
 local SignUp  = require "system.auth.signUp"
 local SignIn  = require "system.auth.signIn"
 local Config  = require "system.configManager"
+local BSOD    = require "system.bsod"
 -- OOS
 local computer  = require "computer"
 local shell     = require "shell"
@@ -12,7 +13,10 @@ local process   = require "process"
 ---@class OS
 ---@field public config Config
 local OS = Object:inherit({
-    isRunning = false
+    isRunning  = false,
+    isLoggedIn = false,
+
+    version    = "0.1.0"
 })
 
 function OS:constructor(properties, parameters)
@@ -65,6 +69,11 @@ function OS:checkConfigFiles()
     end
 end
 
+function OS:bsod(error, trace)
+    print("Error! ", error)
+    print(trace)
+end
+
 function OS:init()
     if (self.isRunning) then
         return false
@@ -72,19 +81,34 @@ function OS:init()
     self.isRunning = true
     self:checkConfigFiles()
 
-    if (self.config:get("startup", "doFirstLaunchProcedure")) then
-        SignUp:new(_, {
-            system = self,
-        }):init()
-    elseif (self.config:get("user", "password") ~= "") then
-        SignIn:new(_, {
-            system = self,
-        }):init()
-    end
+    repeat
+        local status, error = xpcall(function()
+            if (not self.isLoggedIn) then
+                if (self.config:get("startup", "doFirstLaunchProcedure")) then
+                    SignUp:new(_, {
+                        system = self,
+                    }):init()
+                elseif (self.config:get("user", "password") ~= "") then
+                    SignIn:new(_, {
+                        system = self,
+                    }):init()
+                end
+            end
 
-    Desktop:new(_, {
-        system = self
-    }):init()
+            Desktop:new(_, {
+                system = self
+            }):init()
+        end, debug.traceback)
+        if (not status) then
+            BSOD:new(_, {
+                system = self,
+                error  = error
+            }):init()
+            status = true
+            -- Todo: uncomment when release version will be ready
+            self.isRunning = false
+        end
+    until not self.isRunning
 end
 
 -- Todo: uncomment when release version will be ready
