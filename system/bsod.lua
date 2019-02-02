@@ -31,7 +31,7 @@ function BSOD:constructor(properties, parameters)
     local title = "InfOS v" .. properties.system.version
     local titleTextField = TextField:new(_, {
         parent = properties,
-        posY   = properties.contentY + 5,
+        posY   = properties.contentY + 4,
         width  = StringHelper:getLength(title),
         height = 1,
         text   = title,
@@ -47,7 +47,7 @@ function BSOD:constructor(properties, parameters)
     local errorAddress2 = string.upper(string.format("%x", 1000000000 + math.floor(math.random() * 9000000000)))
     local info = TextField:new(_, {
         parent = properties,
-        posY   = properties.contentY + 7,
+        posY   = properties.contentY + 6,
         width  = 120,
         height = 1,
         text   = "Неустранимая ошибка " .. errorCode .. " по адресу " .. errorAddress1 .. ":" .. errorAddress2 .. ". Проблемная часть памяти будет выгружена.",
@@ -58,7 +58,7 @@ function BSOD:constructor(properties, parameters)
 
     local errorTextLine = TextField:new(_, {
         parent = properties,
-        posY   = properties.contentY + 11,
+        posY   = properties.contentY + 10,
         width  = 120,
         height = 30,
         text   = "error: \n" .. parameters.error,
@@ -68,7 +68,7 @@ function BSOD:constructor(properties, parameters)
 
     local hint = TextField:new(_, {
         parent = properties,
-        posY   = properties.contentY + 46,
+        posY   = properties.contentY + 45,
         width  = 60,
         height = 1,
         text   = "Нажмите любую клавишу для продолжения работы",
@@ -80,7 +80,7 @@ function BSOD:constructor(properties, parameters)
     local line = Line:new(_, {
         parent = properties,
         orientation = "horizontal",
-        posY   = properties.contentY + 47,
+        posY   = properties.contentY + 46,
         width  = 44,
         color  = properties.foregroundColor,
         horizontallyCentered = true

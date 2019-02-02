@@ -16,7 +16,7 @@ local OS = Object:inherit({
     isRunning  = false,
     isLoggedIn = false,
 
-    version    = "0.1.0"
+    version    = "0.1.1"
 })
 
 function OS:constructor(properties, parameters)

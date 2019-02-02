@@ -63,7 +63,7 @@ function Desktop:constructor(properties, parameters)
             label = "Уведомление",
             parameters = {
                 windowName = "Уведомление",
-                text       = "Ура! Наконец-то я могу вместить себе больше одной строчки текста! Долой этот чёртов хардкод! (Теперь бы ещё поддержку \"\\n\" и было бы вообще шикарно)",
+                text       = "Ура! Наконец-то я могу вместить себе больше одной строчки текста! Долой этот чёртов хардкод!",
                 type       = "default"
             }
         },
@@ -90,12 +90,16 @@ function Desktop:constructor(properties, parameters)
             label = "PopUp + Btns",
             parameters = {
                 windowName = "Уведомление",
-                text       = "Чё, как?",
+                text       = "Хочешь прикол?",
                 type       = "default",
                 doConfirmButtonRender = true,
-                --doDenyButtonRender    = true,
-                confirmButtonText     = "Всё отлично",
-                denyButtonText        = "Всё плохо"
+                doCloseButtonRender   = false,
+                doProcessInterruption = false,
+                confirmButtonText     = "Ага!",
+                centeredText          = true,
+                onConfirmCallback     = function()
+                    error("Это ты во всём виноват!")
+                end
             }
         }
     }

@@ -43,6 +43,10 @@ function PopUp:constructor(properties, parameters)
     properties.confirmButtonText     = parameters.confirmButtonText     or "Да"
     properties.denyButtonText        = parameters.denyButtonText        or "Нет"
 
+    if (parameters.doProcessInterruption ~= nil) then
+        properties.doProcessInterruption = parameters.doProcessInterruption
+    end
+
     local hasButtons = properties.doConfirmButtonRender or properties.doDenyButtonRender or false
     if (hasButtons) then
         properties.windowHeight  = properties.windowHeight + 2
@@ -60,6 +64,9 @@ function PopUp:constructor(properties, parameters)
     })
     properties.components[#properties.components + 1] = textField
 
+    properties.onConfirmCallback = parameters.onConfirmCallback or function() end
+    properties.onDenyCallback    = parameters.onDenyCallback    or function() end
+
     local buttonWidth = properties.contentWidth * 0.45
     if (properties.doConfirmButtonRender) then
         local confirmButton = Button:new(_, {
@@ -71,6 +78,7 @@ function PopUp:constructor(properties, parameters)
             height = 1,
             horizontallyCentered = properties.doDenyButtonRender ~= true,
             onTouchCallback = function()
+                properties.onConfirmCallback()
                 properties:terminate(true)
             end
         })
@@ -87,6 +95,7 @@ function PopUp:constructor(properties, parameters)
             height = 1,
             horizontallyCentered = properties.doConfirmButtonRender ~= true,
             onTouchCallback = function()
+                properties.onDenyCallback()
                 properties:terminate(false)
             end
         })
