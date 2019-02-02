@@ -1,7 +1,3 @@
---
--- Created by Ikamari, 19.01.2019 0:43
---
-
 -- COS
 local UIComponent   = require "system.components.component"
 local StringHelper  = require "system.helpers.stringHelper"

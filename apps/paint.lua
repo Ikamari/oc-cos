@@ -1,7 +1,3 @@
---
--- Created by Ikamari, 02.01.2019 13:02
---
-
 -- COS
 local Window        = require "system.window"
 local ClickableZone = require "system.components.clickableZone"

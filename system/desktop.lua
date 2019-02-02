@@ -1,7 +1,3 @@
---
--- Created by Ikamari, 14.12.2018 23:35
---
-
 -- COS
 local Window        = require "system.window"
 local ClickableZone = require "system.components.clickableZone"
@@ -86,6 +82,19 @@ function Desktop:constructor(properties, parameters)
                 windowName = "Ошибка",
                 text       = "All your base are belong to us",
                 type       = "error"
+            }
+        },
+        {
+            app = PopUp,
+            label = "PopUp + Btns",
+            parameters = {
+                windowName = "Уведомление",
+                text       = "Чё, как?",
+                type       = "default",
+                doConfirmButtonRender = true,
+                --doDenyButtonRender    = true,
+                confirmButtonText     = "Всё отлично",
+                denyButtonText        = "Всё плохо"
             }
         }
     }

@@ -1,7 +1,3 @@
---
--- Created by Ikamari, 04.01.2019 12:02
---
-
 -- COS
 local Object  = require "system.main.object"
 -- OOS

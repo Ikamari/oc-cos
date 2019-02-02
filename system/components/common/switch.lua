@@ -1,7 +1,3 @@
---
--- Created by Ikamari, 19.01.2019 0:45
---
-
 -- COS
 local Button        = require "system.components.common.button"
 local StringHelper  = require "system.helpers.stringHelper"

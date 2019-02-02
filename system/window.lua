@@ -1,7 +1,3 @@
---
--- Created by Ikamari, 14.12.2018 22:02
---
-
 -- COS
 local Object        = require "system.main.object"
 local ClickableZone = require "system.components.clickableZone"
@@ -38,6 +34,9 @@ local Window = Object:inherit({
     windowY         = 1,
     windowWidth     = screenWidth,
     windowHeight    = screenHeight,
+    contentIndent   = 2,
+
+    status = 0 -- data that will be returned after successful termination of window
     --
 })
 
@@ -45,8 +44,6 @@ function Window:constructor(properties, parameters)
     -- Define which properties must be used (Needed for child classes that calls parent constructor)
     properties = properties or self
     parameters = parameters or {}
-
-
 
     properties.system  = parameters.system
 
@@ -61,11 +58,12 @@ function Window:constructor(properties, parameters)
         properties.windowHeight = parameters.windowHeight or properties.windowHeight
     end
 
-    properties.contentX      = properties.windowX + 2
-    properties.contentY      = properties.windowY + 2
-    properties.contentWidth  = properties.windowWidth  - 4
-    properties.contentHeight = properties.windowHeight - 4
+    properties.contentX      = properties.windowX + properties.contentIndent
+    properties.contentY      = properties.windowY + properties.contentIndent
+    properties.contentWidth  = properties.windowWidth  - properties.contentIndent * 2
+    properties.contentHeight = properties.windowHeight - properties.contentIndent * 2
 
+    properties.keyDownHandlers = {}
     properties.clickableZones  = {}
     properties.components      = {}
     properties.inputComponents = {}
@@ -86,24 +84,31 @@ function Window:constructor(properties, parameters)
     end
 end
 
-function Window:terminate()
-    -- cancel all events
-    for key, eventId in pairs(self.events) do
-        event.cancel(eventId)
+function Window:terminate(status)
+    self:cancelEvents()
+    if status ~= nil then
+        self.status = status
     end
-
     self.terminated = true
 end
 
 function Window:addEvent(eventId, eventKey)
-    eventKey = eventKey or #self.events
+    eventKey = eventKey or eventId
     self.events[eventKey] = eventId
+    return eventId
+end
+
+function Window:cancelEvents()
+    for key in pairs(self.events) do
+        self:cancelEvent(key)
+    end
 end
 
 function Window:cancelEvent(eventKey)
     if self.events[eventKey] then
         event.cancel(self.events[eventKey])
         self.events[eventKey] = nil
+        return true
     end
     return false
 end
@@ -189,13 +194,13 @@ function Window:processInterruptEvent()
 end
 
 function Window:processTouchEvent(address, posX, posY, button, playerName)
+    for key, uiComponent in pairs(self.inputComponents) do
+        uiComponent.clickableZone:check(posX, posY)
+    end
     for key, zone in pairs(self.clickableZones) do
         zone:check(posX, posY)
     end
     for key, uiComponent in pairs(self.components) do
-        uiComponent.clickableZone:check(posX, posY)
-    end
-    for key, uiComponent in pairs(self.inputComponents) do
         uiComponent.clickableZone:check(posX, posY)
     end
 end
@@ -203,6 +208,9 @@ end
 function Window:processDragEvent() end
 
 function Window:processKeyDownEvent(address, char, code, playerName)
+    for key, handler in pairs(self.keyDownHandlers) do
+        handler(char, code)
+    end
     for key, uiComponent in pairs(self.inputComponents) do
         uiComponent:onKeyDown(char, code)
     end
@@ -238,6 +246,8 @@ function Window:init()
             break
         end
     end
+
+    return self.status
 end
 
 return Window

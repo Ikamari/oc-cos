@@ -1,10 +1,7 @@
---
--- Created by Ikamari, 16.12.2018 14:05
---
-
 -- COS
-local Window    = require "system.window"
-local constants = require "system.constants"
+local Window     = require "system.window"
+local constants  = require "system.constants"
+local Button     = require "system.components.common.Button"
 local TextField  = require "system.components.common.textField"
 -- OOS
 local component = require "component"
@@ -27,28 +24,73 @@ function PopUp:constructor(properties, parameters)
     properties = properties or self
     parameters = parameters or {}
 
+    if (parameters.doCloseButtonRender ~= nil) then
+        properties.doCloseButtonRender = parameters.doCloseButtonRender
+    end
+
     -- Call parent constructor
     Window:constructor(properties)
 
-    properties.windowName = parameters.windowName or "Всплывающее окно"
-    properties.text       = parameters.text or ""
-    properties.type       = parameters.type or "default"
+    properties.windowName   = parameters.windowName or "Всплывающее окно"
+    properties.text         = parameters.text or ""
+    properties.centeredText = parameters.centeredText or false
+    properties.type         = parameters.type or "default"
 
-    -- Define which colors must be used in pop-up
-    properties.frameColor      = properties.frameColor
-    properties.backgroundColor = properties.backgroundColor
-    properties.foregroundColor = properties.foregroundColor
-    properties.windowNameColor = constants[properties.type .. "StringColor"] or properties.windowNameColor
+    properties.windowNameColor       = constants[properties.type .. "StringColor"] or properties.windowNameColor
+    properties.doConfirmButtonRender = parameters.doConfirmButtonRender or false
+    properties.doDenyButtonRender    = parameters.doDenyButtonRender    or false
+    properties.confirmButtonText     = parameters.confirmButtonText     or "Да"
+    properties.denyButtonText        = parameters.denyButtonText        or "Нет"
+
+    local hasButtons = properties.doConfirmButtonRender or properties.doDenyButtonRender or false
+    if (hasButtons) then
+        properties.windowHeight  = properties.windowHeight + 2
+        properties.contentHeight = properties.contentHeight + 2
+    end
 
     local textField = TextField:new(_, {
         parent = properties,
         posX   = properties.contentX,
         posY   = properties.contentY,
         width  = properties.contentWidth,
-        height = properties.contentHeight,
-        text   = properties.text
+        height = properties.contentHeight - (hasButtons and 2 or 0),
+        text   = properties.text,
+        centeredText = properties.centeredText
     })
     properties.components[#properties.components + 1] = textField
+
+    local buttonWidth = properties.contentWidth * 0.45
+    if (properties.doConfirmButtonRender) then
+        local confirmButton = Button:new(_, {
+            parent = properties,
+            text   = properties.confirmButtonText,
+            posX   = properties.doDenyButtonRender and properties.contentX + 2 or 0,
+            posY   = properties.contentY + properties.contentHeight - 1,
+            width  = buttonWidth,
+            height = 1,
+            horizontallyCentered = properties.doDenyButtonRender ~= true,
+            onTouchCallback = function()
+                properties:terminate(true)
+            end
+        })
+        properties.components[#properties.components + 1] = confirmButton
+    end
+
+    if (properties.doDenyButtonRender) then
+        local denyButton = Button:new(_, {
+            parent = properties,
+            text   = properties.denyButtonText,
+            posX   = properties.doConfirmButtonRender and (properties.contentX + properties.contentWidth) - (buttonWidth + 1) or 0,
+            posY   = properties.contentY + properties.contentHeight - 1,
+            width  = buttonWidth,
+            height = 1,
+            horizontallyCentered = properties.doConfirmButtonRender ~= true,
+            onTouchCallback = function()
+                properties:terminate(false)
+            end
+        })
+        properties.components[#properties.components + 1] = denyButton
+    end
 end
 
 return PopUp

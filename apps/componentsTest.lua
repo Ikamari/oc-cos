@@ -1,13 +1,9 @@
---
--- Created by Ikamari, 19.01.2019 13:30
---
-
 -- COS
 local Window     = require "system.window"
 local Button     = require "system.components.common.button"
 local Switch     = require "system.components.common.switch"
 local TextField  = require "system.components.common.textField"
-local InputField = require "system.components.common.inputField"
+local LinedInputField = require "system.components.common.linedInputField"
 -- OOS
 local component = require "component"
 local gpu       = component.gpu
@@ -132,13 +128,14 @@ function uiComponentsTest:constructor(properties, parameters)
     })
     properties.components[#properties.components + 1] = testSwitch2
 
-    local testInputField1 = InputField:new(_, {
+    local testInputField1 = LinedInputField:new(_, {
         parent = properties,
         posX   = properties.contentX,
         posY   = properties.contentY + 18,
         width  = 45,
         height = 2,
-        placeholder = "Введи сюда что-то"
+        placeholder = "Введи сюда что-то",
+        horizontallyCentered = true
     })
     properties.inputComponents[#properties.inputComponents + 1] = testInputField1
 end

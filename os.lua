@@ -1,22 +1,13 @@
---
--- Created by Ikamari, 14.12.2018 23:34
---
-
 -- COS
 local Object  = require "system.main.object"
 local Desktop = require "system.desktop"
+local SignUp  = require "system.auth.signUp"
+local SignIn  = require "system.auth.signIn"
 local Config  = require "system.configManager"
 -- OOS
 local computer  = require "computer"
 local shell     = require "shell"
 local process   = require "process"
-
--- Todo: uncomment when release version will be ready
---process.info().data.signal = function(...)
---    computer.beep(750, 0.02)
---    computer.beep(750, 0.02)
---    computer.beep(750, 0.02)
---end
 
 local OS = Object:inherit({
     isRunning = false
@@ -39,7 +30,7 @@ function OS:checkConfigFiles()
     if (not self.config:exist("ui")) then
         self.config:create("ui", {
             desktop = {
-                backgroundColor = 0x282828
+                backgroundColor  = 0x282828
             },
             window = {
                 backgroundColor  = 0x282828,
@@ -55,62 +46,50 @@ function OS:checkConfigFiles()
                 selectedTextColor       = 0x282828,
             }
         })
-        print("Создан конфиг пользовательского интерфейса")
-    else
-        print("Конфиг пользовательского интерфейса присутствует")
     end
-    if (self.doSlowStartup) then os.sleep(0.2) end
 
     if (not self.config:exist("startup")) then
         self.config:create("startup", {
-            doFirstLaunchProcedure     = true,
-            doLockedTerminalSimulation = false,
-            doSlowStartup              = false
+            doFirstLaunchProcedure = true,
+            isLocked = false
         })
-        print("Создан конфиг запуска")
-    else
-        print("Конфиг запуска присутствует")
     end
-    if (self.doSlowStartup) then os.sleep(0.2) end
 
     if (not self.config:exist("user")) then
         self.config:create("user", {
-            username = "Пользователь",
-            password = null
+            name     = "Пользователь",
+            password = ""
         })
-        print("Создан конфиг пользователя")
-    else
-        print("Конфиг пользователя присутствует")
     end
 end
-
--- Note: if something goes whong, try to redo initialization of "OS" and desktop
 
 function OS:init()
     if (self.isRunning) then
         return false
     end
     self.isRunning = true
-    if (self.config:exist("startup")) then
-        self.doSlowStartup = self.config:get("startup", "doSlowStartup")
-    else
-        self.doSlowStartup = true
-    end
-
-    os.execute("clear")
-
-    print("Начинается проверка конфиг файлов")
-    if (self.doSlowStartup) then os.sleep(0.5) end
     self:checkConfigFiles()
 
-    print("Начинается инициализация рабочего стола")
-    if (self.doSlowStartup) then os.sleep(2) end
+    if (self.config:get("startup", "doFirstLaunchProcedure")) then
+        SignUp:new(_, {
+            system = self,
+        }):init()
+    elseif (self.config:get("user", "password") ~= "") then
+        SignIn:new(_, {
+            system = self,
+        }):init()
+    end
 
-    (Desktop:new(_, {
+    Desktop:new(_, {
         system = self
-    })):init()
+    }):init()
 end
 
-(OS:new()):init()
+-- Todo: uncomment when release version will be ready
+--process.info().data.signal = function(...)
+--    computer.beep(750, 0.02)
+--    computer.beep(750, 0.02)
+--    computer.beep(750, 0.02)
+--end
 
-
+OS:new():init()

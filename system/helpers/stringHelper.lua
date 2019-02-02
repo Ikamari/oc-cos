@@ -1,7 +1,3 @@
---
--- Created by Ikamari, 19.01.2019 12:57
---
-
 local StringHelper = {}
 
 function StringHelper:getLength(str)

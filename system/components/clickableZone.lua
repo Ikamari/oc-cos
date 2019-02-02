@@ -1,7 +1,3 @@
---
--- Created by Ikamari, 21.12.2018 21:36
---
-
 local Object = require "system.main.object"
 
 local ClickableZone = Object:inherit({

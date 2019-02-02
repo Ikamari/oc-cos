@@ -1,7 +1,3 @@
---
--- Created by Ikamari, 22.12.2018 22:04
---
-
 -- COS
 local UIComponent   = require "system.components.component"
 local StringHelper  = require "system.helpers.stringHelper"
@@ -26,7 +22,8 @@ function TextField:constructor(properties, parameters)
     properties.textBackgroundColor = parameters.textBackgroundColor or nil
     properties.textForegroundColor = parameters.textForegroundColor or nil
 
-    properties.text = parameters.text or ""
+    properties.text         = parameters.text or ""
+    properties.centeredText = parameters.centeredText
     properties:updateText(properties.text, properties)
 end
 
@@ -43,7 +40,11 @@ function TextField:renderContent()
 
     local lineNumber = 0
     for _, line in pairs(self.lines) do
-        gpu.set(self.contentX, self.contentY + lineNumber, line)
+        if (self.centeredText) then
+            gpu.set(self.contentX + math.ceil(((self.contentWidth - StringHelper:getLength(line)) / 2)), self.contentY + lineNumber, line)
+        else
+            gpu.set(self.contentX, self.contentY + lineNumber, line)
+        end
         lineNumber = lineNumber + 1
     end
 

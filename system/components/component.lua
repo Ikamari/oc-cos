@@ -1,7 +1,3 @@
---
--- Created by Ikamari, 19.01.2019 11:33
---
-
 -- COS
 local Object        = require "system.main.object"
 local ClickableZone = require "system.components.clickableZone"
@@ -45,7 +41,7 @@ function UIComponent:constructor(properties, parameters)
         properties.height = parameters.height
     end
 
-    if type(parameters.posX) ~= "number" or type(parameters.posY) ~= "number" then
+    if (type(parameters.posX) ~= "number" and parameters.horizontallyCentered ~= true) or type(parameters.posY) ~= "number" then
         error("Component must receive \"posX\" and \"posY\" number parameters")
     end
 
@@ -54,7 +50,15 @@ function UIComponent:constructor(properties, parameters)
     properties.textBackgroundColor = parameters.backgroundColor or 0x7e7e7e
     properties.textForegroundColor = parameters.foregroundColor or 0x282828
 
-    properties.posX = parameters.posX
+    if parameters.horizontallyCentered then
+        local componentWidth = properties.width + BoolHelper:toInt(parameters.doLeftFramePartRender) + BoolHelper:toInt(parameters.doRightFramePartRender)
+        properties.posX = properties.parent.contentX + math.ceil((properties.parent.contentWidth - componentWidth) / 2)
+        if (parameters.posX) then
+            properties.posX = properties.posX + parameters.posX
+        end
+    else
+        properties.posX = parameters.posX
+    end
     properties.posY = parameters.posY
 
     properties.contentY      = properties.posY

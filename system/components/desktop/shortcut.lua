@@ -1,7 +1,3 @@
---
--- Created by Ikamari, 02.01.2019 16:18
---
-
 -- COS
 local Object       = require "system.main.object"
 local constants    = require "system.constants"

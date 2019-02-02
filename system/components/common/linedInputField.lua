@@ -1,7 +1,3 @@
---
--- Created by Ikamari, 19.01.2019 0:43
---
-
 -- COS
 local UIComponent   = require "system.components.component"
 local StringHelper  = require "system.helpers.stringHelper"
@@ -11,7 +7,7 @@ local event         = require "event"
 local component     = require "component"
 local gpu           = component.gpu
 
-local InputField = UIComponent:inherit({
+local LinedInputField = UIComponent:inherit({
     contentSideIndent       = 1, -- left and right margin for content
 
     doTopFramePartRender    = true,
@@ -25,7 +21,7 @@ local InputField = UIComponent:inherit({
     cursorY   = nil
 })
 
-function InputField:constructor(properties, parameters)
+function LinedInputField:constructor(properties, parameters)
     -- Define which properties must be used (Needed for child classes that calls parent constructor)
     properties = properties or self
     parameters = parameters or {}
@@ -33,7 +29,7 @@ function InputField:constructor(properties, parameters)
     -- Call parent constructor
     UIComponent:constructor(properties, parameters)
 
-    properties.maxLineLength = properties.contentWidth - 3
+    properties.maxLineLength = parameters.maxLineLength or (properties.contentWidth - 3)
     properties.maxLines      = properties.contentHeight
     properties.lines         = {}
     properties.linesLength   = {}
@@ -43,8 +39,10 @@ function InputField:constructor(properties, parameters)
         properties.linesLength[i] = 0
     end
 
-    properties.placeholder      = parameters.placeholder ~= "" and StringHelper:trim(parameters.placeholder, properties.maxLineLength) or ""
+    properties.placeholder      = parameters.placeholder ~= "" and StringHelper:trim(parameters.placeholder, properties.contentWidth - 3) or ""
     properties.placeholderColor = parameters.placeholderColor or 0xa59c83
+    properties.hiddenText       = parameters.hiddenText
+    properties.filter           = parameters.filter
 
     properties.keyActions = {
         -- Up
@@ -103,9 +101,11 @@ function InputField:constructor(properties, parameters)
         gpu.setBackground(properties.blinked and properties.placeholderColor or properties.textBackgroundColor)
         gpu.set(properties.cursorX, properties.cursorY, character)
     end
+
+    properties.blinkerId = nil
 end
 
-function InputField:renderContent()
+function LinedInputField:renderContent()
     gpu.setBackground(self.textBackgroundColor)
     gpu.setForeground(self.textForegroundColor)
     local drawPlaceholder = true
@@ -113,6 +113,9 @@ function InputField:renderContent()
     for key, line in pairs(self.lines) do
         if (line ~= "") then
             drawPlaceholder = false
+            if (self.hiddenText) then
+                line = line:gsub(".[\128-\191]*", "*")
+            end
             gpu.set(self.contentX + self.contentSideIndent, self.contentY + key, line)
         end
     end
@@ -125,17 +128,17 @@ function InputField:renderContent()
     return true
 end
 
-function InputField:onTouch(parameters)
+function LinedInputField:onTouch(parameters)
     self:updateCursor(true, parameters.x, parameters.y)
 end
 
-function InputField:onFailedTouch()
+function LinedInputField:onFailedTouch()
     if (self.focused) then
         self:updateCursor(false)
     end
 end
 
-function InputField:onKeyDown(char, code)
+function LinedInputField:onKeyDown(char, code)
     if (self.focused) then
         local currentLine = self.cursorY - self.contentY
 
@@ -145,6 +148,11 @@ function InputField:onKeyDown(char, code)
         end
 
         if (char ~= 0) then
+            if self.filter then
+                if unicode.char(char):find(self.filter) == nil then
+                    return
+                end
+            end
             if (self.linesLength[currentLine] < self.maxLineLength) then
                 local charsToRemoveFromEnd    = self.linesLength[currentLine] - (self.cursorX - (self.contentX + self.contentSideIndent))
                 local charsToRemoveFromStart  = self.cursorX - (self.contentX + self.contentSideIndent)
@@ -158,7 +166,7 @@ function InputField:onKeyDown(char, code)
     end
 end
 
-function InputField:updateCursor(enable, x, y)
+function LinedInputField:updateCursor(enable, x, y)
     if (enable) then
         self.blinked = false
 
@@ -179,17 +187,20 @@ function InputField:updateCursor(enable, x, y)
             self.cursorX = x
         end
         
-        if (self.focused == false) then
+        if (self.focused == false and self.blinkerId == nil) then
             self.focused = true
-            self.parent:addEvent(event.timer(0.5, self.blinkerCallback, math.huge), "blinker")
+            self.blinkerId = self.parent:addEvent(event.timer(0.5, self.blinkerCallback, math.huge))
         end
     else
         self.focused = false
-        self.parent:cancelEvent("blinker")
+        self.parent:cancelEvent(self.blinkerId)
+        self.blinkerId = nil
     end
     self:render()
-    self.blinkerCallback()
+    if (enable) then
+        self.blinkerCallback()
+    end
     self.blinked = false
 end
 
-return InputField
+return LinedInputField
