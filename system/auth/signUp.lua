@@ -129,7 +129,7 @@ function SignUp:submit()
     if (password ~= "" or passwordRepeat ~= "") then
         if (passwordRepeat == "") then
             self.components["errorTextField"].isVisible = true
-            self.components["errorTextField"]:updateText("Поле \"Повтор пароля\" должно быть заполнен")
+            self.components["errorTextField"]:updateText("Поле \"Повтор пароля\" должно быть заполнено")
             self:render()
             return
         end
@@ -156,9 +156,10 @@ function SignUp:submit()
         end
     end
 
+    self:renderBackground();
     PopUp:new(_, {
         windowName = "Подсказка",
-        text = "Новый пароль можно всегда будет указать в настройках",
+        text = "Новый пароль всегда можно будет указать в настройках",
         centeredText = true,
         type = "default",
         doConfirmButtonRender = true,
