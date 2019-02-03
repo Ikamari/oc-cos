@@ -218,6 +218,14 @@ function Window:processKeyDownEvent(address, char, code, playerName)
     end
 end
 
+function Window:processAddedFloppyEvent(address)
+    self.system.drive:check(address, true)
+end
+
+function Window:processRemovedFloppyEvent(address)
+    self.system.drive:forget(address)
+end
+
 function Window:render()
     self:renderBackground()
     self:renderFrame()
@@ -233,7 +241,7 @@ function Window:init()
     -- Main loop
     while true do
         if self.doEventHandling then
-            local id, a, b, c, d, e = event.pullMultiple("interrupted", "touch", "drag", "key_down")
+            local id, a, b, c, d, e = event.pullMultiple("interrupted", "touch", "drag", "key_down", "component_added", "component_removed")
             if id == "interrupted" then
                 self:processInterruptEvent()
             elseif id == "drag" then
@@ -242,6 +250,10 @@ function Window:init()
                 self:processTouchEvent(a, b, c, d, e)
             elseif id == "key_down" then
                 self:processKeyDownEvent(a, b, c, d, e)
+            elseif id == "component_added" and b == "filesystem" then
+                self:processAddedFloppyEvent(a)
+            elseif id == "component_removed" and b == "filesystem" then
+                self:processRemovedFloppyEvent(a)
             end
         end
         if self.terminated then

@@ -50,7 +50,7 @@ function BSOD:constructor(properties, parameters)
         posY   = properties.contentY + 6,
         width  = 120,
         height = 1,
-        text   = "Неустранимая ошибка " .. errorCode .. " по адресу " .. errorAddress1 .. ":" .. errorAddress2 .. ". Проблемная часть памяти будет выгружена.",
+        text   = "Произошла неустранимая ошибка " .. errorCode .. " по адресу " .. errorAddress1 .. ":" .. errorAddress2 .. ". Проблемная часть памяти будет выгружена.",
         centeredText = true,
         horizontallyCentered = true
     })

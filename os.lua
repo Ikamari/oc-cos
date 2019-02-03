@@ -3,7 +3,12 @@ local Object  = require "system.main.object"
 local Desktop = require "system.desktop"
 local SignUp  = require "system.auth.signUp"
 local SignIn  = require "system.auth.signIn"
-local Config  = require "system.configManager"
+
+local File    = require "system.managers.fileManager"
+local Config  = require "system.managers.configManager"
+local Storage = require "system.managers.storageManager"
+local Drive   = require "system.managers.diskDriveManager"
+
 local BSOD    = require "system.bsod"
 -- OOS
 local computer  = require "computer"
@@ -11,12 +16,19 @@ local shell     = require "shell"
 local process   = require "process"
 
 ---@class OS
----@field public config Config
+---@field public config  ConfigManager
+---@field public drive   DiskDriveManager
+---@field public storage StorageManager
+---@field public file    FileManager
 local OS = Object:inherit({
+    version    = "0.2.0",
     isRunning  = false,
     isLoggedIn = false,
 
-    version    = "0.1.1"
+    diskInserted = false,
+    diskAddress  = nil,
+    diskType     = nil,
+    diskSubtype  = nil,
 })
 
 function OS:constructor(properties, parameters)
@@ -26,14 +38,31 @@ function OS:constructor(properties, parameters)
 
     properties.rootPath = shell.resolve(process.info().path):gsub("(%S+.)os", "%1")
 
+    local file = File:new(_, {
+        system = properties
+    })
+    properties.file = file
+
     local config = Config:new(_, {
+        system   = properties,
         rootPath = properties.rootPath
     })
     properties.config = config
+
+    local storage = Storage:new(_, {
+        system   = properties,
+        rootPath = properties.rootPath
+    })
+    properties.storage = storage
+
+    local drive = Drive:new(_, {
+        system = properties
+    })
+    properties.drive = drive
 end
 
 function OS:checkConfigFiles()
-    if (not self.config:exist("ui")) then
+    if (not self.config:exists("ui")) then
         self.config:create("ui", {
             desktop = {
                 backgroundColor  = 0x282828
@@ -54,24 +83,19 @@ function OS:checkConfigFiles()
         })
     end
 
-    if (not self.config:exist("startup")) then
+    if (not self.config:exists("startup")) then
         self.config:create("startup", {
             doFirstLaunchProcedure = true,
             isLocked = false
         })
     end
 
-    if (not self.config:exist("user")) then
+    if (not self.config:exists("user")) then
         self.config:create("user", {
             name     = "Пользователь",
             password = ""
         })
     end
-end
-
-function OS:bsod(error, trace)
-    print("Error! ", error)
-    print(trace)
 end
 
 function OS:init()
@@ -80,6 +104,9 @@ function OS:init()
     end
     self.isRunning = true
     self:checkConfigFiles()
+    self.drive:checkComponents()
+    print(self.diskInserted, self.diskType)
+    os.sleep(1)
 
     repeat
         local status, error = xpcall(function()
@@ -105,8 +132,9 @@ function OS:init()
                 error  = error
             }):init()
             status = true
-            -- Todo: uncomment when release version will be ready
+            -- Todo: remove this part of code when release version will be ready
             self.isRunning = false
+            os.execute("clear")
         end
     until not self.isRunning
 end
