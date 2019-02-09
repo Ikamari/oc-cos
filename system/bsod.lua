@@ -3,6 +3,8 @@ local BasicApp     = require "system.app"
 local Line         = require "system.components.common.line"
 local TextField    = require "system.components.common.textField"
 local StringHelper = require "system.helpers.stringHelper"
+-- OOS
+local computer = require "computer"
 
 ---@class BSOD : BasicApp
 local BSOD = BasicApp:inherit({
@@ -27,6 +29,7 @@ function BSOD:constructor(properties, parameters)
 
     -- Call parent constructor
     BasicApp:constructor(properties, parameters)
+    properties.isUnrecoverable = parameters.isUnrecoverable
 
     local title = "InfOS v" .. properties.system.version
     local titleTextField = TextField:new(_, {
@@ -43,35 +46,37 @@ function BSOD:constructor(properties, parameters)
     properties.components["title"] = titleTextField
 
     local errorCode     = string.upper(string.format("%x", 110 + math.floor(math.random() * 100)))
-    local errorAddress1 = string.upper(string.format("%x", 10000 + math.floor(math.random() * 50000)))
-    local errorAddress2 = string.upper(string.format("%x", 1000000000 + math.floor(math.random() * 9000000000)))
+    local errorAddress  = string.upper(string.format("%x", 1000000000 + math.floor(math.random() * 9000000000)))
+    local solution = parameters.isUnrecoverable and ". Для предотвращения проблем необходим перезапуск." or ". Проблемная часть памяти будет выгружена."
     local info = TextField:new(_, {
         parent = properties,
         posY   = properties.contentY + 6,
         width  = 120,
         height = 1,
-        text   = "Произошла неустранимая ошибка " .. errorCode .. " по адресу " .. errorAddress1 .. ":" .. errorAddress2 .. ". Проблемная часть памяти будет выгружена.",
+        text   = "Произошла неустранимая ошибка " .. errorCode .. " по адресу " .. "0x0" .. errorAddress .. solution,
         centeredText = true,
         horizontallyCentered = true
     })
     properties.components["info"] = info
 
-    local errorTextLine = TextField:new(_, {
-        parent = properties,
-        posY   = properties.contentY + 10,
-        width  = 120,
-        height = 30,
-        text   = "error: \n" .. parameters.error,
-        horizontallyCentered = true
-    })
-    properties.components["error"] = errorTextLine
+    if not parameters.isUnrecoverable then
+        local errorTextLine = TextField:new(_, {
+            parent = properties,
+            posY   = properties.contentY + 10,
+            width  = 120,
+            height = 30,
+            text   = "error: \n" .. parameters.error,
+            horizontallyCentered = true
+        })
+        properties.components["error"] = errorTextLine
+    end
 
     local hint = TextField:new(_, {
         parent = properties,
         posY   = properties.contentY + 45,
         width  = 60,
         height = 1,
-        text   = "Нажмите любую клавишу для продолжения работы",
+        text   = "Нажмите любую клавишу чтобы продолжить",
         centeredText = true,
         horizontallyCentered = true
     })
@@ -81,7 +86,7 @@ function BSOD:constructor(properties, parameters)
         parent = properties,
         orientation = "horizontal",
         posY   = properties.contentY + 46,
-        width  = 44,
+        width  = 38,
         color  = properties.foregroundColor,
         horizontallyCentered = true
     })
@@ -89,12 +94,19 @@ function BSOD:constructor(properties, parameters)
 end
 
 function BSOD:processTouchEvent()
+    if self.isUnrecoverable then
+        computer.shutdown(true)
+    end
     self:terminate()
 end
-
 
 function BSOD:processKeyDownEvent()
+    if self.isUnrecoverable then
+        computer.shutdown(true)
+    end
     self:terminate()
 end
+
+function BSOD:processAddedFloppyEvent(address) end
 
 return BSOD

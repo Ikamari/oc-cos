@@ -251,7 +251,9 @@ function BasicApp:processKeyDownEvent(address, char, code, playerName)
 end
 
 function BasicApp:processAddedFloppyEvent(address)
-    self.system.drive:check(address, true)
+    if self.system.drive:check(address, true) then
+        self.system.drive:run(self)
+    end
 end
 
 function BasicApp:processRemovedFloppyEvent(address)

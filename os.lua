@@ -21,14 +21,10 @@ local process   = require "process"
 ---@field public storage StorageManager
 ---@field public file    FileManager
 local OS = Object:inherit({
-    version    = "0.3.0",
+    version    = "0.4.0",
     isRunning  = false,
     isLoggedIn = false,
-
-    diskInserted = false,
-    diskAddress  = nil,
-    diskType     = nil,
-    diskSubtype  = nil,
+    isUnrecoverable = false
 })
 
 function OS:constructor(properties, parameters)
@@ -56,7 +52,8 @@ function OS:constructor(properties, parameters)
     properties.storage = storage
 
     local drive = Drive:new(_, {
-        system = properties
+        system = properties,
+        rootPath = properties.rootPath
     })
     properties.drive = drive
 end
@@ -104,10 +101,10 @@ function OS:init()
     end
     self.isRunning = true
     self:checkConfigFiles()
-    self.drive:checkComponents()
 
     repeat
         local status, error = xpcall(function()
+            self.drive:checkComponents()
             if (not self.isLoggedIn) then
                 if (self.config:get("startup", "doFirstLaunchProcedure")) then
                     SignUp:new(_, {
@@ -117,6 +114,8 @@ function OS:init()
                     SignIn:new(_, {
                         system = self,
                     }):run()
+                else
+                    self.isLoggedIn = true
                 end
             end
 
@@ -127,7 +126,8 @@ function OS:init()
         if (not status) then
             BSOD:new(_, {
                 system = self,
-                error  = error
+                error  = error,
+                isUnrecoverable = self.isUnrecoverable
             }):run()
             status = true
             -- Todo: remove this part of code when release version will be ready
