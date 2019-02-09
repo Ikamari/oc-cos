@@ -1,10 +1,10 @@
 -- COS
-local Window   = require "system.window"
+local BasicApp   = require "system.app"
 -- OOS
 local computer = require "computer"
 
----@class AuthForm : Window
-local AuthForm = Window:inherit({
+---@class AuthForm : BasicApp
+local AuthForm = BasicApp:inherit({
     -- Properties
     doFrameRender       = false,
     doBackgroundRender  = true,
@@ -21,7 +21,7 @@ function AuthForm:constructor(properties, parameters)
     parameters = parameters or {}
 
     -- Call parent constructor
-    Window:constructor(properties, parameters)
+    BasicApp:constructor(properties, parameters)
 
     properties.keyDownHandlers[#properties.keyDownHandlers + 1] = function(_, code)
         if (code == 28) then

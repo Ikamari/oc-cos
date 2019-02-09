@@ -1,11 +1,11 @@
 -- COS
-local Window     = require "system.window"
-local Line       = require "system.components.common.line"
-local TextField  = require "system.components.common.textField"
+local BasicApp     = require "system.app"
+local Line         = require "system.components.common.line"
+local TextField    = require "system.components.common.textField"
 local StringHelper = require "system.helpers.stringHelper"
 
----@class BSOD : Window
-local BSOD = Window:inherit({
+---@class BSOD : BasicApp
+local BSOD = BasicApp:inherit({
     -- Properties
     doFrameRender       = false,
     doBackgroundRender  = true,
@@ -26,7 +26,7 @@ function BSOD:constructor(properties, parameters)
     parameters = parameters or {}
 
     -- Call parent constructor
-    Window:constructor(properties, parameters)
+    BasicApp:constructor(properties, parameters)
 
     local title = "InfOS v" .. properties.system.version
     local titleTextField = TextField:new(_, {
@@ -86,10 +86,15 @@ function BSOD:constructor(properties, parameters)
         horizontallyCentered = true
     })
     properties.components[#properties.components + 1] = line
+end
 
-    properties.keyDownHandlers[#properties.keyDownHandlers + 1] = function()
-        properties:terminate()
-    end
+function BSOD:processTouchEvent()
+    self:terminate()
+end
+
+
+function BSOD:processKeyDownEvent()
+    self:terminate()
 end
 
 return BSOD

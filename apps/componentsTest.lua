@@ -1,15 +1,15 @@
 -- COS
-local Window     = require "system.window"
-local Button     = require "system.components.common.button"
-local Switch     = require "system.components.common.switch"
-local TextField  = require "system.components.common.textField"
+local BasicApp     = require "system.app"
+local Button       = require "system.components.common.button"
+local Switch       = require "system.components.common.switch"
+local TextField    = require "system.components.common.textField"
 local LinedInputField = require "system.components.common.linedInputField"
 -- OOS
 local component = require "component"
 local gpu       = component.gpu
 
----@class UIComponentsTest : Window
-local UIComponentsTest = Window:inherit({
+---@class UIComponentsTest : BasicApp
+local UIComponentsTest = BasicApp:inherit({
     -- Properties
     windowName = "Тест UI компонентов"
     --
@@ -21,7 +21,7 @@ function UIComponentsTest:constructor(properties, parameters)
     parameters = parameters or {}
 
     -- Call parent constructor
-    Window:constructor(properties, parameters)
+    BasicApp:constructor(properties, parameters)
 
     local testButton1 = Button:new(_, {
         parent = properties,

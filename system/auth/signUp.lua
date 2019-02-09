@@ -144,6 +144,7 @@ function SignUp:submit()
         self:cancelEvents()
         self:renderBackground();
         if PopUp:new(_, {
+            system = self.system,
             windowName = "Подтверждение",
             text = "Вы уверены в том, что не хотите устанавливать пароль?",
             centeredText = true,
@@ -151,7 +152,7 @@ function SignUp:submit()
             doConfirmButtonRender = true,
             doDenyButtonRender    = true,
             doCloseButtonRender   = false
-        }):init() == false then
+        }):run() == false then
             self:render()
             return
         end
@@ -159,6 +160,7 @@ function SignUp:submit()
 
     self:renderBackground();
     PopUp:new(_, {
+        system = self.system,
         windowName = "Подсказка",
         text = "Новый пароль всегда можно будет указать в настройках",
         centeredText = true,
@@ -166,7 +168,7 @@ function SignUp:submit()
         doConfirmButtonRender = true,
         confirmButtonText     = "Ок",
         doCloseButtonRender   = false
-    }):init()
+    }):run()
 
     self.system.config:setValues("user", {
         name     = name,

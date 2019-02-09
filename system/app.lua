@@ -7,10 +7,15 @@ local component     = require "component"
 local gpu           = component.gpu
 local screenWidth, screenHeight = gpu.getResolution()
 
----@class Window
+---@class BasicApp
 ---@field public system OS
-local Window = Object:inherit({
+---@field public child  BasicApp|nil
+---@field public parent BasicApp|nil
+local BasicApp = Object:inherit({
     -- Properties
+    parent = nil,
+    child  = nil,
+
     terminated            = false,
     doEventHandling       = true,
     doProcessInterruption = true,
@@ -21,7 +26,7 @@ local Window = Object:inherit({
     windowNameColor   = 0xa59c83,
     closeButtonColor  = 0x555547,
 
-    windowName        = "Окно",
+    windowName        = "Приложение",
     windowNameIndent  = 1,    -- "left margin" in columns
     autoSize          = true, -- if true, then windowWidth = screenWidth - widnowX * 2 (same with height)
 
@@ -42,10 +47,14 @@ local Window = Object:inherit({
     --
 })
 
-function Window:constructor(properties, parameters)
+function BasicApp:constructor(properties, parameters)
     -- Define which properties must be used (Needed for child classes that calls parent constructor)
     properties = properties or self
     parameters = parameters or {}
+
+    if not parameters.system then
+        error("App must receive reference to system core as parameter")
+    end
 
     properties.system  = parameters.system
 
@@ -86,7 +95,20 @@ function Window:constructor(properties, parameters)
     end
 end
 
-function Window:terminate(status)
+function BasicApp:call(ChildApp, parameters, properties)
+    properties = properties or self
+    parameters["system"] = properties.system
+    parameters["parent"] = properties
+    properties.child = ChildApp:new(_, parameters)
+    properties.child:run()
+    properties.child = nil
+    properties:update("down")
+end
+
+function BasicApp:terminate(status)
+    if self.child then
+        self.child:terminate(status)
+    end
     self:cancelEvents()
     if status ~= nil then
         self.status = status
@@ -94,19 +116,29 @@ function Window:terminate(status)
     self.terminated = true
 end
 
-function Window:addEvent(eventId, eventKey)
+function BasicApp:update(side)
+    if self.parent and (side == "down" or side == "both") then
+        self.parent.update("down")
+    end
+    self:render()
+    if self.child and (side == "up" or side == "both") then
+        self.child:update("up")
+    end
+end
+
+function BasicApp:addEvent(eventId, eventKey)
     eventKey = eventKey or eventId
     self.events[eventKey] = eventId
     return eventId
 end
 
-function Window:cancelEvents()
+function BasicApp:cancelEvents()
     for key in pairs(self.events) do
         self:cancelEvent(key)
     end
 end
 
-function Window:cancelEvent(eventKey)
+function BasicApp:cancelEvent(eventKey)
     if self.events[eventKey] then
         event.cancel(self.events[eventKey])
         self.events[eventKey] = nil
@@ -115,11 +147,11 @@ function Window:cancelEvent(eventKey)
     return false
 end
 
-function Window:switchEventHandling()
+function BasicApp:switchEventHandling()
     self.doEventHandling = not self.doEventHandling
 end
 
-function Window:renderCloseButton()
+function BasicApp:renderCloseButton()
     if self.doCloseButtonRender == false then
         return false
     end
@@ -130,7 +162,7 @@ function Window:renderCloseButton()
     return true
 end
 
-function Window:renderWindowName()
+function BasicApp:renderWindowName()
     if not self.doWindowNameRender then
         return false
     end
@@ -141,7 +173,7 @@ function Window:renderWindowName()
     return true
 end
 
-function Window:renderFrame()
+function BasicApp:renderFrame()
     if not self.doFrameRender then
         return false
     end
@@ -167,7 +199,7 @@ function Window:renderFrame()
     return true
 end
 
-function Window:renderBackground()
+function BasicApp:renderBackground()
     if not self.doBackgroundRender then
         return false
     end
@@ -178,7 +210,7 @@ function Window:renderBackground()
     return true
 end
 
-function Window:renderComponents()
+function BasicApp:renderComponents()
     for key, uiComponent in pairs(self.components) do
         uiComponent:render()
     end
@@ -187,15 +219,15 @@ function Window:renderComponents()
     end
 end
 
-function Window:renderContent() end
+function BasicApp:renderContent() end
 
-function Window:processInterruptEvent()
+function BasicApp:processInterruptEvent()
     if self.doProcessInterruption then
         self:terminate()
     end
 end
 
-function Window:processTouchEvent(address, posX, posY, button, playerName)
+function BasicApp:processTouchEvent(address, posX, posY, button, playerName)
     for key, uiComponent in pairs(self.inputComponents) do
         uiComponent.clickableZone:check(posX, posY)
     end
@@ -207,9 +239,9 @@ function Window:processTouchEvent(address, posX, posY, button, playerName)
     end
 end
 
-function Window:processDragEvent() end
+function BasicApp:processDragEvent() end
 
-function Window:processKeyDownEvent(address, char, code, playerName)
+function BasicApp:processKeyDownEvent(address, char, code, playerName)
     for key, handler in pairs(self.keyDownHandlers) do
         handler(char, code)
     end
@@ -218,15 +250,15 @@ function Window:processKeyDownEvent(address, char, code, playerName)
     end
 end
 
-function Window:processAddedFloppyEvent(address)
+function BasicApp:processAddedFloppyEvent(address)
     self.system.drive:check(address, true)
 end
 
-function Window:processRemovedFloppyEvent(address)
+function BasicApp:processRemovedFloppyEvent(address)
     self.system.drive:forget(address)
 end
 
-function Window:render()
+function BasicApp:render()
     self:renderBackground()
     self:renderFrame()
     self:renderWindowName()
@@ -235,7 +267,7 @@ function Window:render()
     self:renderContent()
 end
 
-function Window:init()
+function BasicApp:run()
     self:render()
 
     -- Main loop
@@ -264,4 +296,4 @@ function Window:init()
     return self.status
 end
 
-return Window
+return BasicApp

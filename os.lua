@@ -21,7 +21,7 @@ local process   = require "process"
 ---@field public storage StorageManager
 ---@field public file    FileManager
 local OS = Object:inherit({
-    version    = "0.2.0",
+    version    = "0.3.0",
     isRunning  = false,
     isLoggedIn = false,
 
@@ -105,8 +105,6 @@ function OS:init()
     self.isRunning = true
     self:checkConfigFiles()
     self.drive:checkComponents()
-    print(self.diskInserted, self.diskType)
-    os.sleep(1)
 
     repeat
         local status, error = xpcall(function()
@@ -114,23 +112,23 @@ function OS:init()
                 if (self.config:get("startup", "doFirstLaunchProcedure")) then
                     SignUp:new(_, {
                         system = self,
-                    }):init()
+                    }):run()
                 elseif (self.config:get("user", "password") ~= "") then
                     SignIn:new(_, {
                         system = self,
-                    }):init()
+                    }):run()
                 end
             end
 
             Desktop:new(_, {
                 system = self
-            }):init()
+            }):run()
         end, debug.traceback)
         if (not status) then
             BSOD:new(_, {
                 system = self,
                 error  = error
-            }):init()
+            }):run()
             status = true
             -- Todo: remove this part of code when release version will be ready
             self.isRunning = false

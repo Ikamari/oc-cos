@@ -1,5 +1,5 @@
 -- COS
-local Window     = require "system.window"
+local BasicApp   = require "system.app"
 local constants  = require "system.constants"
 local Button     = require "system.components.common.Button"
 local TextField  = require "system.components.common.textField"
@@ -8,8 +8,8 @@ local component = require "component"
 local gpu       = component.gpu
 local screenWidth, screenHeight = gpu.getResolution()
 
----@class PopUp : Window
-local PopUp = Window:inherit({
+---@class PopUp : BasicApp
+local PopUp = BasicApp:inherit({
     -- Properties
     windowX      = screenWidth  * 0.25,
     windowY      = screenHeight * 0.5 - 3,
@@ -30,7 +30,7 @@ function PopUp:constructor(properties, parameters)
     end
 
     -- Call parent constructor
-    Window:constructor(properties)
+    BasicApp:constructor(properties, parameters)
 
     properties.windowName   = parameters.windowName or "Всплывающее окно"
     properties.text         = parameters.text or ""

@@ -1,5 +1,5 @@
 -- COS
-local Window        = require "system.window"
+local BasicApp      = require "system.app"
 local ClickableZone = require "system.components.clickableZone"
 local Shortcut      = require "system.components.desktop.shortcut"
 local PopUp         = require "system.popup"
@@ -13,8 +13,8 @@ local component     = require "component"
 local gpu           = component.gpu
 local screenWidth, screenHeight = gpu.getResolution()
 
----@class Desktop : Window
-local Desktop = Window:inherit({
+---@class Desktop : BasicApp
+local Desktop = BasicApp:inherit({
     -- Properties
     doFrameRender       = false,
     doBackgroundRender  = true,
@@ -31,7 +31,7 @@ function Desktop:constructor(properties, parameters)
     parameters = parameters or {}
 
     -- Call parent constructor
-    Window:constructor(properties, parameters)
+    BasicApp:constructor(properties, parameters)
 
     -- Define shortcuts
     properties.nextShortcutX = properties.contentX
@@ -126,10 +126,7 @@ function Desktop:addShortcut(properties, label, App, appParameters)
         callback = function (parent, callbackParameters, parameters)
             if callbackParameters.shortcut.isSelected then
                 callbackParameters.shortcut:switchSelectedState()
-                local app = callbackParameters.app:new(_, callbackParameters.appParameters)
-                app:init()
-
-                parent:render()
+                parent:call(callbackParameters.app, callbackParameters.appParameters)
             else
                 callbackParameters.shortcut:switchSelectedState()
                 callbackParameters.shortcut:render()

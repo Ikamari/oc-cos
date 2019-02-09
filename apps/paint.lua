@@ -1,12 +1,12 @@
 -- COS
-local Window        = require "system.window"
+local BasicApp      = require "system.app"
 local ClickableZone = require "system.components.clickableZone"
 -- OOS
 local component     = require "component"
 local gpu           = component.gpu
 
----@class Paint : Window
-local Paint = Window:inherit({
+---@class Paint : BasicApp
+local Paint = BasicApp:inherit({
     -- Properties
     windowName = "Рисовалка",
 
@@ -20,7 +20,7 @@ function Paint:constructor(properties, parameters)
     parameters = parameters or {}
 
     -- Call parent constructor
-    Window:constructor(properties, parameters)
+    BasicApp:constructor(properties, parameters)
 
     properties.canvasX      = properties.contentX
     properties.canvasY      = properties.contentY
