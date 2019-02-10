@@ -1,6 +1,6 @@
--- COS
+-- InfOS
 local BasicApp   = require "system.app"
--- OOS
+-- OpenOS
 local computer = require "computer"
 
 ---@class AuthForm : BasicApp
@@ -15,6 +15,7 @@ local AuthForm = BasicApp:inherit({
     --
 })
 
+---@param properties BasicApp
 function AuthForm:constructor(properties, parameters)
     -- Define which properties must be used (Needed for child classes that calls parent constructor)
     properties = properties or self

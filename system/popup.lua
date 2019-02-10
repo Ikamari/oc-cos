@@ -1,9 +1,10 @@
--- COS
+-- InfOS
 local BasicApp   = require "system.app"
 local constants  = require "system.constants"
+-- Components
 local Button     = require "system.components.common.Button"
 local TextField  = require "system.components.common.textField"
--- OOS
+-- OpenOS
 local component = require "component"
 local gpu       = component.gpu
 local screenWidth, screenHeight = gpu.getResolution()

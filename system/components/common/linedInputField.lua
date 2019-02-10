@@ -1,7 +1,8 @@
--- COS
+-- InfOS
 local UIComponent   = require "system.components.component"
+-- Helpers
 local StringHelper  = require "system.helpers.stringHelper"
--- OOS
+-- OpenOS
 local unicode       = require "unicode"
 local event         = require "event"
 local component     = require "component"
@@ -9,6 +10,7 @@ local gpu           = component.gpu
 
 ---@class LinedInputField : UIComponent
 local LinedInputField = UIComponent:inherit({
+    canHandleKeyboardEvents = true,
     contentSideIndent       = 1, -- left and right margin for content
 
     doTopFramePartRender    = true,
@@ -35,7 +37,19 @@ function LinedInputField:constructor(properties, parameters)
     properties.lines         = {}
     properties.linesLength   = {}
 
-    for i = 0, properties.maxLines - 1 do
+    local amountOfLines = 0
+    if parameters.initialLines then
+        for key, line in pairs(parameters.initialLines) do
+            if (amountOfLines < properties.maxLines) then
+                line = StringHelper:trim(line, properties.maxLineLength)
+                properties.lines[amountOfLines]       = line
+                properties.linesLength[amountOfLines] = StringHelper:getLength(line)
+                amountOfLines = amountOfLines + 1
+            end
+        end
+    end
+
+    for i = amountOfLines, properties.maxLines - 1 do
         properties.lines[i]       = ""
         properties.linesLength[i] = 0
     end
@@ -104,6 +118,24 @@ function LinedInputField:constructor(properties, parameters)
     end
 
     properties.blinkerId = nil
+end
+
+function LinedInputField:updateLines(lines)
+    local amountOfLines = 0
+    for key, line in pairs(lines) do
+        if (amountOfLines < self.maxLines) then
+            line = StringHelper:trim(line, self.maxLineLength)
+            self.lines[amountOfLines] = line
+            self.linesLength[amountOfLines] = StringHelper:getLength(line)
+            amountOfLines = amountOfLines + 1
+        end
+    end
+
+    for i = amountOfLines, self.maxLines - 1 do
+        self.lines[i]       = ""
+        self.linesLength[i] = 0
+    end
+    self:render()
 end
 
 function LinedInputField:renderContent()

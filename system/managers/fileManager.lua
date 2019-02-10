@@ -1,6 +1,6 @@
--- COS
+-- InfOS
 local Object  = require "system.main.object"
--- OOS
+-- OpenOS
 local srl        = require "serialization"
 local filesystem = require "filesystem"
 

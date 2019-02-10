@@ -1,17 +1,14 @@
--- COS
+-- InfOS
 local BasicApp      = require "system.app"
 local ClickableZone = require "system.components.clickableZone"
--- OOS
+-- OpenOS
 local component     = require "component"
 local gpu           = component.gpu
 
 ---@class Paint : BasicApp
 local Paint = BasicApp:inherit({
-    -- Properties
     windowName = "Рисовалка",
-
     doDrawing = true
-    --
 })
 
 function Paint:constructor(properties, parameters)

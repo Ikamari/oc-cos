@@ -1,14 +1,14 @@
--- COS
+-- InfOS
 local UIComponent   = require "system.components.component"
+-- Helpers
 local StringHelper  = require "system.helpers.stringHelper"
--- OOS
+-- OpenOS
 local component     = require "component"
 local gpu           = component.gpu
 
 ---@class TextField : UIComponent
 local TextField = UIComponent:inherit({
     doFrameRender      = false,
-    doBackgroundRender = false,
     contentSideIndent  = 0, -- left and right margin for content
 })
 
@@ -25,6 +25,8 @@ function TextField:constructor(properties, parameters)
 
     properties.text         = parameters.text or ""
     properties.centeredText = parameters.centeredText
+    properties.backgroundColor = parameters.backgroundColor or properties.parent.backgroundColor
+
     properties:updateText(properties.text, properties)
 end
 
@@ -48,6 +50,13 @@ function TextField:renderContent()
         end
         lineNumber = lineNumber + 1
     end
+
+    return true
+end
+
+function UIComponent:renderBackground()
+    gpu.setBackground(self.backgroundColor)
+    gpu.fill(self.posX, self.posY, self.width, self.height, " ")
 
     return true
 end

@@ -1,4 +1,4 @@
--- COS
+-- InfOS
 local Object  = require "system.main.object"
 local Desktop = require "system.desktop"
 local SignUp  = require "system.auth.signUp"
@@ -10,7 +10,7 @@ local Storage = require "system.managers.storageManager"
 local Drive   = require "system.managers.diskDriveManager"
 
 local BSOD    = require "system.bsod"
--- OOS
+-- OpenOS
 local computer  = require "computer"
 local shell     = require "shell"
 local process   = require "process"
@@ -21,7 +21,7 @@ local process   = require "process"
 ---@field public storage StorageManager
 ---@field public file    FileManager
 local OS = Object:inherit({
-    version    = "0.4.0",
+    version    = "0.5.0",
     isRunning  = false,
     isLoggedIn = false,
     isUnrecoverable = false

@@ -1,7 +1,7 @@
--- COS
+-- InfOS
 local Object        = require "system.main.object"
 local ClickableZone = require "system.components.clickableZone"
--- OOS
+-- OpenOS
 local event         = require "event"
 local component     = require "component"
 local gpu           = component.gpu
@@ -95,14 +95,47 @@ function BasicApp:constructor(properties, parameters)
     end
 end
 
+---@param ChildApp   BasicApp
+---@param parameters table
+---@param properties BasicApp
 function BasicApp:call(ChildApp, parameters, properties)
     properties = properties or self
     parameters["system"] = properties.system
     parameters["parent"] = properties
     properties.child = ChildApp:new(_, parameters)
-    properties.child:run()
+    local status = properties.child:run()
     properties.child = nil
     properties:update("down")
+    return status
+end
+
+---@param Component  UIComponent
+---@param parameters table
+---@param properties BasicApp
+---@return UIComponent
+function BasicApp:addComponent(Component, parameters, properties, name)
+    properties = properties or self
+    parameters = parameters or {}
+    parameters["parent"] = properties
+
+    local uiComponent    = Component:new(_, parameters)
+    local uiComponentKey = name or (#properties.components + 1)
+    if uiComponent.canHandleKeyboardEvents then
+        properties.inputComponents[uiComponentKey] = uiComponent
+    else
+        properties.components[uiComponentKey] = uiComponent
+    end
+    return uiComponent, uiComponentKey
+end
+
+---@return UIComponent
+function BasicApp:getComponent(componentKey)
+    if self.inputComponents[componentKey] then
+        return self.inputComponents[componentKey]
+    elseif self.components[componentKey] then
+        return self.components[componentKey]
+    end
+    error("Trying to get unknown component")
 end
 
 function BasicApp:terminate(status)

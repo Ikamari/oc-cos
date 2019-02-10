@@ -1,6 +1,6 @@
--- COS
+-- InfOS
 local UIComponent   = require "system.components.component"
--- OOS
+-- OpenOS
 local component     = require "component"
 local gpu           = component.gpu
 

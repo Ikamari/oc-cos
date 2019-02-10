@@ -1,6 +1,7 @@
--- COS
+-- InfOS
 local constants  = require "system.constants"
 local AuthForm   = require "system.auth.AuthForm"
+-- Components
 local PopUp      = require "system.popup"
 local Line       = require "system.components.common.line"
 local Button     = require "system.components.common.button"
@@ -10,6 +11,7 @@ local LinedInputField = require "system.components.common.linedInputField"
 ---@class SignUp : AuthForm
 local SignUp = AuthForm:inherit({})
 
+---@param properties SignUp
 function SignUp:constructor(properties, parameters)
     -- Define which properties must be used (Needed for child classes that calls parent constructor)
     properties = properties or self
@@ -18,50 +20,41 @@ function SignUp:constructor(properties, parameters)
     -- Call parent constructor
     AuthForm:constructor(properties, parameters)
 
-    local greet = TextField:new(_, {
-        parent = properties,
+    properties:addComponent(TextField, {
         posY   = properties.contentY + 14,
         width  = 26,
         height = 1,
         text   = "Добро пожаловать в InfOS!",
         centeredText = true,
         horizontallyCentered = true
-    })
-    properties.components["greetTextField"] = greet
+    }, properties, "greetTextField")
 
-    local line = Line:new(_, {
-        parent = properties,
+    properties:addComponent(Line, {
         orientation = "horizontal",
         posY   = properties.contentY + 15,
         width  = 87,
         horizontallyCentered = true
-    })
-    properties.components[#properties.components + 1] = line
+    }, properties)
 
-    local info = TextField:new(_, {
-        parent = properties,
-        posY = properties.contentY + 16,
-        width = 87,
+    properties:addComponent(TextField, {
+        posY   = properties.contentY + 16,
+        width  = 87,
         height = 3,
-        text = "В связи с тем, что это первый запуск системы, необходимо, чтобы Вы указали своё имя или название этого компьютера. Также в целях безопасности рекомендуется указать пароль.",
+        text   = "В связи с тем, что это первый запуск системы, необходимо, чтобы Вы указали своё имя или название этого компьютера. Также в целях безопасности рекомендуется указать пароль.",
         horizontallyCentered = true,
         centeredText = true
-    })
-    properties.components["infoTextField"] = info
+    }, properties, "infoTextField")
 
-    local nameField = LinedInputField:new(_, {
-        parent = properties,
-        posX = -1,
-        posY = properties.contentY + 21,
-        width = 32,
+    properties:addComponent(LinedInputField, {
+        posX   = -1,
+        posY   = properties.contentY + 21,
+        width  = 32,
         height = 1,
         placeholder = "Имя",
         horizontallyCentered = true
-    })
-    properties.inputComponents["nameInputField"] = nameField
+    }, properties, "nameInputField")
 
-    local passwordField = LinedInputField:new(_, {
-        parent = properties,
+    properties:addComponent(LinedInputField, {
         posX   = -1,
         posY   = properties.contentY + 24,
         width  = 32,
@@ -71,25 +64,21 @@ function SignUp:constructor(properties, parameters)
         horizontallyCentered = true,
         hiddenText = true,
         filter = "[\33-\122]"
-    })
-    properties.inputComponents["passwordInputField"] = passwordField
+    }, properties, "passwordInputField")
 
-    local passwordRepeatField = LinedInputField:new(_, {
-        parent = properties,
-        posX = -1,
-        posY = properties.contentY + 27,
-        width = 32,
+    properties:addComponent(LinedInputField, {
+        posX   = -1,
+        posY   = properties.contentY + 27,
+        width  = 32,
         height = 1,
-        placeholder = "Повтор пароля",
+        placeholder = "Подтверждение пароля",
         maxLineLength = 8,
         horizontallyCentered = true,
         hiddenText = true,
         filter = "[\33-\122]"
-    })
-    properties.inputComponents["passwordRepeatInputField"] = passwordRepeatField
+    }, properties, "passwordRepeatInputField")
 
-    local acceptButton = Button:new(_, {
-        parent = properties,
+    properties:addComponent(Button, {
         text   = "Принять данные и продолжить",
         posY   = properties.contentY + 31,
         width  = 34,
@@ -98,11 +87,9 @@ function SignUp:constructor(properties, parameters)
         onTouchCallback = function()
             properties:submit()
         end
-    })
-    properties.components["acceptButton"] = acceptButton
+    }, properties, "acceptButton")
 
-    local errorTextField = TextField:new(_, {
-        parent = properties,
+    properties:addComponent(TextField, {
         posY   = properties.contentY + 34,
         width  = 50,
         height = 1,
@@ -111,8 +98,7 @@ function SignUp:constructor(properties, parameters)
         horizontallyCentered = true,
         isVisible = false,
         textForegroundColor = constants.errorStringColor
-    })
-    properties.components["errorTextField"] = errorTextField
+    }, properties, "errorTextField")
 end
 
 function SignUp:submit()
@@ -130,13 +116,13 @@ function SignUp:submit()
     if (password ~= "" or passwordRepeat ~= "") then
         if (passwordRepeat == "") then
             self.components["errorTextField"].isVisible = true
-            self.components["errorTextField"]:updateText("Поле \"Повтор пароля\" должно быть заполнено")
+            self.components["errorTextField"]:updateText("Поле \"Подтверждение пароля\" должно быть заполнено")
             self:render()
             return
         end
         if (password ~= passwordRepeat) then
             self.components["errorTextField"].isVisible = true
-            self.components["errorTextField"]:updateText("Пароли не совпадают")
+            self.components["errorTextField"]:updateText("Пароль и его подтверждение не совпадают")
             self:render()
             return
         end

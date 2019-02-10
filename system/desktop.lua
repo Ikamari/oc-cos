@@ -1,13 +1,14 @@
--- COS
+-- InfOS
 local BasicApp      = require "system.app"
 local ClickableZone = require "system.components.clickableZone"
 local Shortcut      = require "system.components.desktop.shortcut"
 local PopUp         = require "system.popup"
 local constants     = require "system.constants"
--- COS Apps
+-- InfOS Apps
 local Paint          = require "apps.paint"
 local ComponentsTest = require "apps.componentsTest"
--- OOS
+local Settings       = require "apps.settings"
+-- OpenOS
 local computer      = require "computer"
 local component     = require "component"
 local gpu           = component.gpu
@@ -25,6 +26,7 @@ local Desktop = BasicApp:inherit({
     --
 })
 
+---@param properties Desktop
 function Desktop:constructor(properties, parameters)
     -- Define which properties must be used (Needed for child classes that calls parent constructor)
     properties = properties or self
@@ -100,6 +102,15 @@ function Desktop:constructor(properties, parameters)
                 onConfirmCallback     = function()
                     error("Это ты во всём виноват!")
                 end
+            }
+        },
+        {
+            app = Settings,
+            label = "Настройки",
+            parameters = {
+                windowX = properties.contentX,
+                windowY = properties.contentY,
+                system  = properties.system
             }
         }
     }

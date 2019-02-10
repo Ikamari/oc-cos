@@ -1,7 +1,8 @@
--- COS
+-- InfOS
 local UIComponent   = require "system.components.component"
+-- Helpers
 local StringHelper  = require "system.helpers.stringHelper"
--- OOS
+-- OpenOS
 local component     = require "component"
 local gpu           = component.gpu
 

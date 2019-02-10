@@ -1,4 +1,4 @@
--- COS
+-- InfOS
 local Object  = require "system.main.object"
 
 ---@class ConfigManager

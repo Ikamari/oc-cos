@@ -1,7 +1,8 @@
--- COS
+-- InfOS
 local Disk         = require "system.managers.disks.disk"
+-- Helpers
 local StringHelper = require "system.helpers.stringHelper"
--- OOS
+-- OpenOS
 local computer     = require "computer"
 local component    = require "component"
 local gpu          = component.gpu

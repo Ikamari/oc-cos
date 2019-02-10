@@ -1,7 +1,7 @@
--- COS
+-- InfOS
 local Object  = require "system.main.object"
 local Disk    = require "system.managers.disks.disk"
--- OOS
+-- OpenOS
 local computer   = require "computer"
 local component  = require "component"
 

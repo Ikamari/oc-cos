@@ -1,14 +1,16 @@
--- COS
+-- InfOS
 local Object        = require "system.main.object"
 local ClickableZone = require "system.components.clickableZone"
+-- Helpers
 local BoolHelper    = require "system.helpers.boolHelper"
--- OOS
+-- OpenOS
 local component     = require "component"
 local gpu           = component.gpu
 
 ---@class UIComponent
 local UIComponent = Object:inherit({
     mustHaveParentReference = true,
+    canHandleKeyboardEvents = false,
     hasDefaultSize          = false,
 
     doFrameRender           = true,
@@ -168,7 +170,7 @@ function UIComponent:renderFrame()
 end
 
 function UIComponent:renderBackground()
-    if self.doBackgroundRender == false then
+    if not self.doBackgroundRender then
         return false
     end
 
