@@ -27,10 +27,6 @@ function ClickableZone:constructor(properties, parameters)
         error("Clickable zone must receive \"parent\" table parameter")
     end
 
-    if type(parameters.callback) ~= "function" then
-        error("Clickable zone must receive \"callback\" function parameter")
-    end
-
     properties.initialized = true
     properties.debug = parameters.debug or properties.debug
     properties.type  = parameters.type
@@ -42,8 +38,8 @@ function ClickableZone:constructor(properties, parameters)
     end
 
     properties.parent             = parameters.parent
-    properties.callback           = parameters.callback
-    properties.onFailCallback     = parameters.onFailCallback or false
+    properties.callback           = parameters.callback       or function() end
+    properties.onFailCallback     = parameters.onFailCallback or function() end
     properties.callbackParameters = parameters.callbackParameters or {}
 end
 
@@ -66,17 +62,13 @@ function ClickableZone:check(x, y, parameters)
         if (self.minX <= x and x <= self.maxX) and (self.minY <= y and y <= self.maxY) then
             self.callback(self.parent, self.callbackParameters, parameters)
         else
-            if self.onFailCallback ~= false then
-                self.onFailCallback(self.parent, self.callbackParameters, parameters)
-            end
+            self.onFailCallback(self.parent, self.callbackParameters, parameters)
         end
     else
         if self.minX == x and self.minY == y then
             self.callback(self.parent, self.callbackParameters, parameters)
         else
-            if self.onFailCallback ~= false then
-                self.onFailCallback(self.parent, self.callbackParameters, parameters)
-            end
+            self.onFailCallback(self.parent, self.callbackParameters, parameters)
         end
     end
 end

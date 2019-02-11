@@ -158,7 +158,7 @@ end
 ---@param Component TextField
 function Settings:showResult(Component, isSuccess, message)
     Component.isVisible = true
-    Component.textForegroundColor = constants[isSuccess and "successStringColor" or "errorStringColor"]
+    Component.textForegroundColor = constants[isSuccess and "successTextColor" or "errorTextColor"]
     Component:updateText(message)
 end
 

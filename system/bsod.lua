@@ -1,5 +1,6 @@
 -- InfOS
 local BasicApp     = require "system.app"
+local constants    = require "system.constants"
 -- Components
 local Line         = require "system.components.common.line"
 local TextField    = require "system.components.common.textField"
@@ -19,8 +20,8 @@ local BSOD = BasicApp:inherit({
     autoSize = false,
     contentIndent = 0,
 
-    foregroundColor = 0xa59c83,
-    backgroundColor = 0x0000EE
+    foregroundColor = constants.bsodForegroundColor,
+    backgroundColor = constants.bsodBackgroundColor
     --
 })
 

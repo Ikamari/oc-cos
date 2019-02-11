@@ -75,7 +75,7 @@ function SignIn:constructor(properties, parameters)
         centeredText = true,
         horizontallyCentered = true,
         isVisible = false,
-        textForegroundColor = constants.errorStringColor
+        textForegroundColor = constants.errorTextColor
     }, properties, "errorTextField")
 end
 

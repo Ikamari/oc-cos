@@ -21,7 +21,7 @@ local process   = require "process"
 ---@field public storage StorageManager
 ---@field public file    FileManager
 local OS = Object:inherit({
-    version    = "0.5.0",
+    version    = "0.6.0",
     isRunning  = false,
     isLoggedIn = false,
     isUnrecoverable = false
@@ -59,26 +59,26 @@ function OS:constructor(properties, parameters)
 end
 
 function OS:checkConfigFiles()
-    if (not self.config:exists("ui")) then
-        self.config:create("ui", {
-            desktop = {
-                backgroundColor  = 0x282828
-            },
-            window = {
-                backgroundColor  = 0x282828,
-                frameColor       = 0x555547,
-                textColor        = 0xa59c83,
-                windowNameColor  = 0xa59c83,
-                closeButtonColor = 0x555547
-            },
-            shortcut = {
-                backgroundColor = 0x535353,
-                textColor       = 0xa59c83,
-                selectedBackgroundColor = 0x919191,
-                selectedTextColor       = 0x282828,
-            }
-        })
-    end
+    --if (not self.config:exists("ui")) then
+    --    self.config:create("ui", {
+    --        desktop = {
+    --            backgroundColor  = 0x282828
+    --        },
+    --        window = {
+    --            backgroundColor  = 0x282828,
+    --            frameColor       = 0x555547,
+    --            textColor        = 0xa59c83,
+    --            windowNameColor  = 0xa59c83,
+    --            closeButtonColor = 0x555547
+    --        },
+    --        shortcut = {
+    --            backgroundColor = 0x535353,
+    --            textColor       = 0xa59c83,
+    --            selectedBackgroundColor = 0x919191,
+    --            selectedTextColor       = 0x282828,
+    --        }
+    --    })
+    --end
 
     if (not self.config:exists("startup")) then
         self.config:create("startup", {

@@ -55,7 +55,7 @@ function TextField:renderContent()
 end
 
 function UIComponent:renderBackground()
-    gpu.setBackground(self.backgroundColor)
+    gpu.setBackground(self.textBackgroundColor or self.parent.backgroundColor)
     gpu.fill(self.posX, self.posY, self.width, self.height, " ")
 
     return true

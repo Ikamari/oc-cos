@@ -1,5 +1,6 @@
 -- InfOS
 local Button        = require "system.components.common.button"
+local constants     = require "system.constants"
 -- Helpers
 local StringHelper  = require "system.helpers.stringHelper"
 -- OpenOS
@@ -17,10 +18,10 @@ function Switch:constructor(properties, parameters)
     -- Call parent constructor
     Button:constructor(properties, parameters)
 
-    properties.activeTextBackgroundColor   = parameters.activeTextBackgroundColor   or 0x7e7e7e
-    properties.unactiveTextBackgroundColor = parameters.unactiveTextBackgroundColor or 0x7e7e7e
-    properties.activeTextForegroundColor   = parameters.activeTextForegroundColor   or 0x282828
-    properties.unactiveTextForegroundColor = parameters.unactiveTextForegroundColor or 0x282828
+    properties.activeTextBackgroundColor   = parameters.activeTextBackgroundColor   or constants.componentBackgroundColor
+    properties.unactiveTextBackgroundColor = parameters.unactiveTextBackgroundColor or constants.componentBackgroundColor
+    properties.activeTextForegroundColor   = parameters.activeTextForegroundColor   or constants.invertedTextColor
+    properties.unactiveTextForegroundColor = parameters.unactiveTextForegroundColor or constants.invertedTextColor
 
     properties.activeText   = parameters.activeText   or "Вкл"
     properties.unactiveText = parameters.unactiveText or "Выкл"

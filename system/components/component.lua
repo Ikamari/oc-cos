@@ -1,5 +1,6 @@
 -- InfOS
 local Object        = require "system.main.object"
+local constants     = require "system.constants"
 local ClickableZone = require "system.components.clickableZone"
 -- Helpers
 local BoolHelper    = require "system.helpers.boolHelper"
@@ -48,10 +49,10 @@ function UIComponent:constructor(properties, parameters)
         error("Component must receive \"posX\" and \"posY\" number parameters")
     end
 
-    properties.frameColor          = parameters.frameColor      or 0x555547
-    properties.backgroundColor     = parameters.backgroundColor or 0x7e7e7e
-    properties.textBackgroundColor = parameters.backgroundColor or 0x7e7e7e
-    properties.textForegroundColor = parameters.foregroundColor or 0x282828
+    properties.frameColor          = parameters.frameColor      or constants.frameColor
+    properties.backgroundColor     = parameters.backgroundColor or constants.componentBackgroundColor
+    properties.textBackgroundColor = parameters.textBackgroundColor or parameters.backgroundColor or constants.componentBackgroundColor
+    properties.textForegroundColor = parameters.foregroundColor or constants.invertedTextColor
 
     if parameters.horizontallyCentered then
         local componentWidth = properties.width + BoolHelper:toInt(parameters.doLeftFramePartRender) + BoolHelper:toInt(parameters.doRightFramePartRender)

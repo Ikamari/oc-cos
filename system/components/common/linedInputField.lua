@@ -1,5 +1,6 @@
 -- InfOS
 local UIComponent   = require "system.components.component"
+local constants     = require "system.constants"
 -- Helpers
 local StringHelper  = require "system.helpers.stringHelper"
 -- OpenOS
@@ -55,7 +56,7 @@ function LinedInputField:constructor(properties, parameters)
     end
 
     properties.placeholder      = parameters.placeholder ~= "" and StringHelper:trim(parameters.placeholder, properties.contentWidth - 3) or ""
-    properties.placeholderColor = parameters.placeholderColor or 0xa59c83
+    properties.placeholderColor = parameters.placeholderColor or constants.componentPlaceholderColor
     properties.hiddenText       = parameters.hiddenText
     properties.filter           = parameters.filter
 

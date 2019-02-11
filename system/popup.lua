@@ -1,6 +1,7 @@
 -- InfOS
-local BasicApp   = require "system.app"
-local constants  = require "system.constants"
+local BasicApp      = require "system.app"
+local constants     = require "system.constants"
+local ClickableZone = require "system.components.clickableZone"
 -- Components
 local Button     = require "system.components.common.Button"
 local TextField  = require "system.components.common.textField"
@@ -21,6 +22,7 @@ local PopUp = BasicApp:inherit({
     --
 })
 
+---@param properties PopUp
 function PopUp:constructor(properties, parameters)
     -- Define which properties must be used (Needed for child classes that calls parent constructor)
     properties = properties or self
@@ -102,6 +104,27 @@ function PopUp:constructor(properties, parameters)
         })
         properties.components[#properties.components + 1] = denyButton
     end
+
+
+    local popupZone = ClickableZone:new(_, {
+        x      = properties.windowX,
+        y      = properties.windowY,
+        width  = properties.windowWidth,
+        height = properties.windowHeight,
+        type   = "zone",
+        parent = properties,
+        onFailCallback = function ()
+            gpu.setBackground(constants.backgroundColor)
+            for i = 1, 8 do
+                os.sleep(0.08)
+                properties.frameColor = i % 2 == 0 and constants.frameColor or constants.highlightedFrameColor
+                properties:renderFrame()
+                properties:renderWindowName()
+                properties:renderCloseButton()
+            end
+        end
+    })
+    properties.clickableZones["canvas"] = popupZone
 end
 
 return PopUp

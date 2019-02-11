@@ -1,5 +1,6 @@
 -- InfOS
 local Object        = require "system.main.object"
+local constants     = require "system.constants"
 local ClickableZone = require "system.components.clickableZone"
 -- OpenOS
 local event         = require "event"
@@ -20,11 +21,11 @@ local BasicApp = Object:inherit({
     doEventHandling       = true,
     doProcessInterruption = true,
 
-    frameColor        = 0x555547,
-    backgroundColor   = 0x282828,
-    foregroundColor   = 0xa59c83,
-    windowNameColor   = 0xa59c83,
-    closeButtonColor  = 0x555547,
+    frameColor        = constants.frameColor,
+    backgroundColor   = constants.backgroundColor,
+    foregroundColor   = constants.defaultTextColor,
+    windowNameColor   = constants.defaultTextColor,
+    closeButtonColor  = constants.defaultTextColor,
 
     windowName        = "Приложение",
     windowNameIndent  = 1,    -- "left margin" in columns
