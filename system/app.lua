@@ -96,14 +96,26 @@ function BasicApp:constructor(properties, parameters)
     end
 end
 
----@param ChildApp   BasicApp
+---@param App        BasicApp
 ---@param parameters table
 ---@param properties BasicApp
-function BasicApp:call(ChildApp, parameters, properties)
+function BasicApp:callApp(App, parameters, properties)
     properties = properties or self
+    parameters = parameters or {}
+    parameters["windowX"] = properties.contentX
+    parameters["windowY"] = properties.contentY
+    self:call(App, parameters, properties)
+end
+
+---@param Child      BasicApp
+---@param parameters table
+---@param properties BasicApp
+function BasicApp:call(Child, parameters, properties)
+    properties = properties or self
+    parameters = parameters or {}
     parameters["system"] = properties.system
     parameters["parent"] = properties
-    properties.child = ChildApp:new(_, parameters)
+    properties.child = Child:new(_, parameters)
     local status = properties.child:run()
     properties.child = nil
     properties:update("down")

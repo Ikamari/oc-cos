@@ -1,29 +1,29 @@
 -- InfOS
-local BasicApp      = require "system.app"
-local ClickableZone = require "system.components.clickableZone"
-local Shortcut      = require "system.components.desktop.shortcut"
-local PopUp         = require "system.popup"
-local constants     = require "system.constants"
+local BasicApp       = require "system.app"
+local PopUp          = require "system.popup"
+local Shortcut       = require "system.components.desktop.shortcut"
+local constants      = require "system.constants"
+local icons          = require "system.icons"
 -- InfOS Apps
 local Paint          = require "apps.paint"
 local ComponentsTest = require "apps.componentsTest"
 local Settings       = require "apps.settings"
 -- OpenOS
-local computer      = require "computer"
-local component     = require "component"
-local gpu           = component.gpu
-local screenWidth, screenHeight = gpu.getResolution()
+local computer       = require "computer"
 
 ---@class Desktop : BasicApp
 local Desktop = BasicApp:inherit({
-    -- Properties
     doFrameRender       = false,
     doBackgroundRender  = true,
     doWindowNameRender  = false,
     doCloseButtonRender = false,
 
-    autoSize = false
-    --
+    autoSize      = false,
+
+    currentRow      = 1,
+    currentColumn   = 1,
+    shortcutsPerRow = 2,
+    shortcutRows    = 2
 })
 
 ---@param properties Desktop
@@ -36,143 +36,69 @@ function Desktop:constructor(properties, parameters)
     BasicApp:constructor(properties, parameters)
 
     -- Define shortcuts
-    properties.nextShortcutX = properties.contentX
-    properties.nextShortcutY = properties.contentY
-    properties.shortcuts = {}
+    properties.shortcutStartX = ((properties.windowWidth / 2) - constants.shortcutWidth) - 1
+    properties.shortcutStartY = properties.windowY + 9
+    properties.nextShortcutX  = properties.shortcutStartX
+    properties.nextShortcutY  = properties.shortcutStartY
 
     -- Hardcoded paint shortcut
     local shortcuts = {
         {
-            app = Paint,
-            label = "Рисовалка",
-            parameters = {
-                windowX = properties.contentX,
-                windowY = properties.contentY,
-                system  = properties.system
-            }
+            app = nil,
         },
         {
-            app = ComponentsTest,
-            label = "UI тест",
-            parameters = {
-                windowX = properties.contentX,
-                windowY = properties.contentY,
-                system  = properties.system
-            }
-        },
-        {
-            app = PopUp,
-            label = "Уведомление",
-            parameters = {
-                windowName = "Уведомление",
-                text       = "Ура! Наконец-то я могу вместить себе больше одной строчки текста! Долой этот чёртов хардкод!",
-                type       = "default"
-            }
-        },
-        {
-            app = PopUp,
-            label = "Предупреждение",
-            parameters = {
-                windowName = "Предупреждение",
-                text       = "?!",
-                type       = "warning"
-            }
-        },
-        {
-            app = PopUp,
-            label = "Ошибка",
-            parameters = {
-                windowName = "Ошибка",
-                text       = "All your base are belong to us",
-                type       = "error"
-            }
-        },
-        {
-            app = PopUp,
-            label = "PopUp + Btns",
-            parameters = {
-                windowName = "Уведомление",
-                text       = "Хочешь прикол?",
-                type       = "default",
-                doConfirmButtonRender = true,
-                doCloseButtonRender   = false,
-                doProcessInterruption = false,
-                confirmButtonText     = "Ага!",
-                centeredText          = true,
-                onConfirmCallback     = function()
-                    error("Это ты во всём виноват!")
-                end
-            }
+            app = nil,
         },
         {
             app = Settings,
-            label = "Настройки",
+        },
+        {
+            executable = PopUp,
             parameters = {
-                windowX = properties.contentX,
-                windowY = properties.contentY,
-                system  = properties.system
-            }
+                windowName = "Выключение",
+                text = "Что Вы желаете сделать?",
+                centeredText = true,
+                doConfirmButtonRender = true,
+                doDenyButtonRender    = true,
+                doCloseButtonRender   = true,
+                confirmButtonText     = "Завершить работу",
+                denyButtonText        = "Перезагрузить компьютер",
+                onConfirmCallback     = function ()
+                    computer.shutdown(false)
+                end,
+                onDenyCallback        = function()
+                    computer.shutdown(true)
+                end
+            },
+            text = "Выключение",
+            icon = icons.exit
         }
     }
 
-    for key, shortcut in pairs(shortcuts) do
-        properties:addShortcut(properties, shortcut.label, shortcut.app, shortcut.parameters)
+    for _, shortcutData in pairs(shortcuts) do
+        properties:addComponent(Shortcut, {
+            posX = properties.nextShortcutX,
+            posY = properties.nextShortcutY,
+            app  = shortcutData.app,
+            executable = shortcutData.executable,
+            parameters = shortcutData.parameters,
+            text = shortcutData.text,
+            icon = shortcutData.icon
+        }, properties)
+
+        -- todo: needs to be finished
+        if properties.currentColumn + 1 <= properties.shortcutsPerRow then
+            properties.currentColumn = properties.currentColumn + 1
+            properties.nextShortcutX = properties.nextShortcutX + constants.shortcutWidth + 2
+        elseif properties.currentRow + 1 <= properties.shortcutRows then
+            properties.currentColumn = 1
+            properties.currentRow    = properties.currentRow + 1
+            properties.nextShortcutX = properties.shortcutStartX
+            properties.nextShortcutY = properties.nextShortcutY + constants.shortcutHeight + 1
+        else
+            break
+        end
     end
-end
-
-function Desktop:addShortcut(properties, label, App, appParameters)
-    properties.shortcuts[#properties.shortcuts + 1] = Shortcut:new(_, {
-        posX  = properties.nextShortcutX,
-        posY  = properties.nextShortcutY,
-        label = label
-    })
-
-    properties.clickableZones[#properties.clickableZones + 1] = ClickableZone:new(_, {
-        x      = properties.nextShortcutX,
-        y      = properties.nextShortcutY,
-        width  = constants.shortcutWidth,
-        height = constants.shortcutHeight,
-        type   = "zone",
-        parent = properties,
-        callback = function (parent, callbackParameters, parameters)
-            if callbackParameters.shortcut.isSelected then
-                callbackParameters.shortcut:switchSelectedState()
-                parent:call(callbackParameters.app, callbackParameters.appParameters)
-            else
-                callbackParameters.shortcut:switchSelectedState()
-                callbackParameters.shortcut:render()
-            end
-        end,
-        onFailCallback = function (parent, callbackParameters, parameters)
-            if callbackParameters.shortcut.isSelected then
-                callbackParameters.shortcut:switchSelectedState()
-                parent:renderContent()
-            end
-        end,
-        callbackParameters = {
-            shortcut      = properties.shortcuts[#properties.shortcuts],
-            app           = App,
-            appParameters = appParameters
-        }
-    })
-
-    properties.nextShortcutX = properties.nextShortcutX + constants.shortcutWidth + 1
-
-    local maxNextShortcutX = properties.contentX + properties.contentWidth - 1 - constants.shortcutWidth
-    if properties.nextShortcutX > maxNextShortcutX then
-        properties.nextShortcutX = 0
-        properties.nextShortcutY = properties.nextShortcutY + constants.shortcutHeight + 1
-    end
-end
-
-function Desktop:renderShortcuts()
-    for key, shortcut in pairs(self.shortcuts) do
-        shortcut:render()
-    end
-end
-
-function Desktop:renderContent()
-    self:renderShortcuts()
 end
 
 function Desktop:processInterruptEvent()

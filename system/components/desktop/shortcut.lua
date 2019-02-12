@@ -1,77 +1,114 @@
 -- InfOS
-local Object       = require "system.main.object"
+local Button       = require "system.components.common.button"
+local PopUp        = require "system.popup"
 local constants    = require "system.constants"
+local icons        = require "system.icons"
 -- Helpers
 local StringHelper = require "system.helpers.stringHelper"
 -- OpenOS
 local component = require "component"
 local gpu       = component.gpu
 
----@class Shortcut
-local Shortcut = Object:inherit({
-    icon       = false,
-    label      = "Shortcut",
-    isSelected = false,
+---@class Shortcut : Button
+---@field parent Desktop
+local Shortcut = Button:inherit({
+    isSelected     = false,
+    hasDefaultSize = true,
 
-    selectedBackgoundColor  = 0x919191,
-    backgroundColor         = 0x535353,
-    selectedForegroundColor = 0x282828,
-    foregroundColor         = 0xa59c83
+    doBottomFramePartRender = false,
 })
 
+---@param properties Shortcut
 function Shortcut:constructor(properties, parameters)
     -- Define which properties must be used (Needed for child classes that calls parent constructor)
     properties = properties or self
     parameters = parameters or {}
 
-    properties.posX     = parameters.posX or 1
-    properties.posY     = parameters.posY or 1
-    properties.contentX = parameters.posX + 1
-    properties.contentY = parameters.posY + 1
+    properties.height = constants.shortcutHeight
+    properties.width  = constants.shortcutWidth
 
-    properties.label     = parameters.label or properties.label
-    properties.realLabel = parameters.label or properties.label
+    parameters.text   = parameters.text or (parameters.app and parameters.app.windowName or "Ярлык")
 
-    local labelLength = StringHelper:getLength(properties.label)
-    if labelLength + 2 < constants.shortcutWidth then
-        properties.labelIndent = math.floor((constants.shortcutWidth - labelLength) / 2)
+    -- Call parent constructor
+    Button:constructor(properties, parameters)
+
+    properties.app        = parameters.app
+    properties.executable = parameters.executable
+    properties.parameters = parameters.parameters or {}
+
+    properties.backgroundColor             = constants.shortcutBackgroundColor
+    properties.selectedBackgroundColor     = constants.selectedShortcutBackgroundColor
+    properties.textForegroundColor         = constants.shortcutTextForegroundColor
+    properties.selectedTextForegroundColor = constants.selectedShortcutTextForegroundColor
+
+
+    properties.iconDetailColor = constants.shortcutIconDetailColor
+    properties.iconColor       = constants.shortcutIconColor
+    properties.icon            = parameters.icon or (properties.app and (properties.app.icon or icons.unknown) or icons.unknown)
+    properties.iconDetails     = properties.app and (properties.app.iconDetails or {}) or {}
+end
+
+function Shortcut:onTouch()
+    if self.isSelected then
+        if self.app then
+            self.parent:callApp(self.app, self.parameters)
+        elseif self.executable then
+            self.parent:call(self.executable, self.parameters)
+        else
+            self.parent:call(PopUp, {
+                windowName = "Уведомление",
+                text = "Этот ярлык ещё не запрограммирован",
+                centeredText          = true,
+                doConfirmButtonRender = true,
+                confirmButtonText     = "Ок",
+                doCloseButtonRender   = false
+            })
+        end
+        self.isSelected = false
     else
-        properties.labelIndent = 1
-        properties.label = StringHelper:trim(properties.label, constants.shortcutWidth - 2)
+        self.isSelected = true
+    end
+    self:render()
+end
+
+function Shortcut:onFailedTouch()
+    self.isSelected = false
+    self:render()
+end
+
+function Shortcut:renderContent()
+    -- label
+    gpu.setForeground(self.isSelected and self.selectedTextForegroundColor or self.textForegroundColor)
+    gpu.setBackground(self.isSelected and self.selectedBackgroundColor or self.backgroundColor)
+    gpu.set(self.contentX + self.textIndent, self.contentY + self.contentHeight - 2, self.text)
+
+    -- icon
+    gpu.setForeground(self.iconColor)
+    for posY, string in pairs(self.icon) do
+        if posY > 10 then break end
+        gpu.set(self.contentX + 4, self.contentY + 1 + posY, StringHelper:trim(string, 20, false))
     end
 
-    properties.icon = parameters.icon  or properties.icon
-end
-
-function Shortcut:switchSelectedState()
-    self.isSelected = not self.isSelected
-end
-
-function Shortcut:renderLabel()
-    gpu.setForeground(self.isSelected and self.selectedForegroundColor or self.foregroundColor)
-    gpu.set(self.posX + self.labelIndent, self.posY + constants.shortcutHeight - 2, self.label)
-
-    return true
-end
-
-function Shortcut:renderIcon()
-    if not self.icon then
-        return false
+    -- icon details
+    gpu.setForeground(self.isSelected and self.selectedBackgroundColor or self.backgroundColor)
+    gpu.setBackground(self.iconColor)
+    for _, detail in pairs(self.iconDetails) do
+        if (detail.posY > 10) then goto continue end
+        gpu.set(
+            self.contentX + 4 + detail.posX,
+            self.contentY + 1 + detail.posY,
+            StringHelper:trim(detail.string, 20 - detail.posX, false)
+        )
+        ::continue::
     end
 
     return true
 end
 
 function Shortcut:renderBackground()
-    gpu.setBackground(self.isSelected and self.selectedBackgoundColor or self.backgroundColor)
-    gpu.fill(self.posX, self.posY, constants.shortcutWidth, constants.shortcutHeight, " ")
+    gpu.setBackground(self.isSelected and self.selectedBackgroundColor or self.backgroundColor)
+    gpu.fill(self.posX, self.posY, self.width, self.height, " ")
     return true
-end
-
-function Shortcut:render()
-    self:renderBackground()
-    self:renderLabel()
-    self:renderIcon()
 end
 
 return Shortcut

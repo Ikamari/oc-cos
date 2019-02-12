@@ -2,6 +2,7 @@
 local BasicApp  = require "system.app"
 local PopUp     = require "system.popup"
 local constants = require "system.constants"
+local icons     = require "system.icons"
 -- Components
 local Button          = require "system.components.common.button"
 local Switch          = require "system.components.common.switch"
@@ -11,6 +12,7 @@ local LinedInputField = require "system.components.common.linedInputField"
 ---@class Settings : BasicApp
 local Settings = BasicApp:inherit({
     windowName = "Настройки",
+    icon       = icons.settings
 })
 
 ---@param properties Settings

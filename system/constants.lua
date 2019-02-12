@@ -1,6 +1,13 @@
 return {
-    shortcutMargin = 2,
-    shortcutWidth  = 15,
+    shortcutBackgroundColor             = 0x5A5A5A,
+    selectedShortcutBackgroundColor     = 0x969696,
+    shortcutTextForegroundColor         = 0xD2D2D2,
+    selectedShortcutTextForegroundColor = 0xD2D2D2,
+
+    shortcutIconColor       = 0xD2D2D2,
+    shortcutIconDetailColor = 0x5A5A5A,
+
+    shortcutWidth  = 30,
     shortcutHeight = 15,
 
     frameColor            = 0x5A5A5A,

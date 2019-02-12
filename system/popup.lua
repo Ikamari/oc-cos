@@ -12,14 +12,13 @@ local screenWidth, screenHeight = gpu.getResolution()
 
 ---@class PopUp : BasicApp
 local PopUp = BasicApp:inherit({
-    -- Properties
+    windowName   = "Всплывающее окно",
     windowX      = screenWidth  * 0.25,
     windowY      = screenHeight * 0.5 - 3,
     windowWidth  = screenWidth  * 0.5,
     windowHeight = 6,
 
     autoSize     = false
-    --
 })
 
 ---@param properties PopUp
@@ -35,12 +34,12 @@ function PopUp:constructor(properties, parameters)
     -- Call parent constructor
     BasicApp:constructor(properties, parameters)
 
-    properties.windowName   = parameters.windowName or "Всплывающее окно"
+    properties.windowName   = parameters.windowName or properties.windowName
     properties.text         = parameters.text or ""
     properties.centeredText = parameters.centeredText or false
     properties.type         = parameters.type or "default"
 
-    properties.windowNameColor       = constants[properties.type .. "StringColor"] or properties.windowNameColor
+    properties.windowNameColor       = constants[properties.type .. "TextColor"] or properties.windowNameColor
     properties.doConfirmButtonRender = parameters.doConfirmButtonRender or false
     properties.doDenyButtonRender    = parameters.doDenyButtonRender    or false
     properties.confirmButtonText     = parameters.confirmButtonText     or "Да"
@@ -115,7 +114,7 @@ function PopUp:constructor(properties, parameters)
         parent = properties,
         onFailCallback = function ()
             gpu.setBackground(constants.backgroundColor)
-            for i = 1, 8 do
+            for i = 1, 6 do
                 os.sleep(0.08)
                 properties.frameColor = i % 2 == 0 and constants.frameColor or constants.highlightedFrameColor
                 properties:renderFrame()

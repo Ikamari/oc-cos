@@ -9,6 +9,7 @@ local component     = require "component"
 local gpu           = component.gpu
 
 ---@class UIComponent
+---@field parent BasicApp
 local UIComponent = Object:inherit({
     mustHaveParentReference = true,
     canHandleKeyboardEvents = false,
@@ -112,12 +113,12 @@ function UIComponent:constructor(properties, parameters)
     properties.contentWidth  = properties.width - properties.contentSideIndent
 
 
-    if parameters.onTouchCallback and type(parameters.onTouchCallback) ~= "function" then
-        error("Component must receive \"onTouchCallback\" parameter of \"function\" type")
-    end
-    if parameters.onFailedTouchCallbac and type(parameters.onFailedTouchCallback) ~= "function" then
-        error("Component must receive \"onFailedTouchCallback\" parameter of \"function\" type")
-    end
+    --if parameters.onTouchCallback and type(parameters.onTouchCallback) ~= "function" then
+    --    error("Component must receive \"onTouchCallback\" parameter of \"function\" type")
+    --end
+    --if parameters.onFailedTouchCallback and type(parameters.onFailedTouchCallback) ~= "function" then
+    --    error("Component must receive \"onFailedTouchCallback\" parameter of \"function\" type")
+    --end
 
     properties.onTouchCallback       = parameters.onTouchCallback or function() end
     properties.onFailedTouchCallback = parameters.onFailedTouchCallback or function() end
