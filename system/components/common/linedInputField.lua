@@ -33,29 +33,14 @@ function LinedInputField:constructor(properties, parameters)
     -- Call parent constructor
     UIComponent:constructor(properties, parameters)
 
-    properties.maxLineLength = parameters.maxLineLength or (properties.contentWidth - 3)
+    properties.maxLineLength = (parameters.maxLineLength and parameters.maxLineLength <= properties.contentWidth - 3) and parameters.maxLineLength or (properties.contentWidth - 3)
     properties.maxLines      = properties.contentHeight
     properties.lines         = {}
     properties.linesLength   = {}
 
-    local amountOfLines = 0
-    if parameters.initialLines then
-        for key, line in pairs(parameters.initialLines) do
-            if (amountOfLines < properties.maxLines) then
-                line = StringHelper:trim(line, properties.maxLineLength)
-                properties.lines[amountOfLines]       = line
-                properties.linesLength[amountOfLines] = StringHelper:getLength(line)
-                amountOfLines = amountOfLines + 1
-            end
-        end
-    end
+    properties:updateLines(parameters.initialLines or {}, properties, true)
 
-    for i = amountOfLines, properties.maxLines - 1 do
-        properties.lines[i]       = ""
-        properties.linesLength[i] = 0
-    end
-
-    properties.placeholder      = parameters.placeholder ~= "" and StringHelper:trim(parameters.placeholder, properties.contentWidth - 3) or ""
+    properties.placeholder      = parameters.placeholder and StringHelper:trim(parameters.placeholder, properties.contentWidth - 3) or ""
     properties.placeholderColor = parameters.placeholderColor or constants.componentPlaceholderColor
     properties.hiddenText       = parameters.hiddenText
     properties.filter           = parameters.filter
@@ -121,22 +106,27 @@ function LinedInputField:constructor(properties, parameters)
     properties.blinkerId = nil
 end
 
-function LinedInputField:updateLines(lines)
-    local amountOfLines = 0
+function LinedInputField:updateLines(lines, properties, skipRender)
+    properties = properties or self
+
+    local amountOfLines = 1
     for key, line in pairs(lines) do
-        if (amountOfLines < self.maxLines) then
-            line = StringHelper:trim(line, self.maxLineLength)
-            self.lines[amountOfLines] = line
-            self.linesLength[amountOfLines] = StringHelper:getLength(line)
+        if (amountOfLines <= properties.maxLines) then
+            line = StringHelper:trim(line, properties.maxLineLength)
+            properties.lines[amountOfLines] = line
+            properties.linesLength[amountOfLines] = StringHelper:getLength(line)
             amountOfLines = amountOfLines + 1
         end
     end
 
-    for i = amountOfLines, self.maxLines - 1 do
-        self.lines[i]       = ""
-        self.linesLength[i] = 0
+    for i = amountOfLines, properties.maxLines do
+        properties.lines[i]       = ""
+        properties.linesLength[i] = 0
     end
-    self:render()
+
+    if not skipRender then
+        properties:render()
+    end
 end
 
 function LinedInputField:renderContent()
@@ -150,7 +140,7 @@ function LinedInputField:renderContent()
             if (self.hiddenText) then
                 line = line:gsub(".[\128-\191]*", "*")
             end
-            gpu.set(self.contentX + self.contentSideIndent, self.contentY + key, line)
+            gpu.set(self.contentX + self.contentSideIndent, (self.contentY + key) - 1, line)
         end
     end
 
@@ -174,7 +164,7 @@ end
 
 function LinedInputField:onKeyDown(char, code)
     if (self.focused) then
-        local currentLine = self.cursorY - self.contentY
+        local currentLine = (self.cursorY - self.contentY) + 1
 
         if (self.keyActions[code]) then
             self.keyActions[code](currentLine)
@@ -215,8 +205,8 @@ function LinedInputField:updateCursor(enable, x, y)
         -- Define cursor's x
         if (x < self.contentX + self.contentSideIndent) then
             self.cursorX = self.contentX + self.contentSideIndent
-        elseif (x > self.contentX + self.contentSideIndent + self.linesLength[self.cursorY - self.contentY]) then
-            self.cursorX = self.contentX + self.contentSideIndent + self.linesLength[self.cursorY - self.contentY]
+        elseif (x > self.contentX + self.contentSideIndent + self.linesLength[(self.cursorY - self.contentY) + 1]) then
+            self.cursorX = self.contentX + self.contentSideIndent + self.linesLength[(self.cursorY - self.contentY) + 1]
         else
             self.cursorX = x
         end

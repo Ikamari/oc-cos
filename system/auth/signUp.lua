@@ -102,9 +102,9 @@ function SignUp:constructor(properties, parameters)
 end
 
 function SignUp:submit()
-    local name           = self.inputComponents["nameInputField"].lines[0]
-    local password       = self.inputComponents["passwordInputField"].lines[0]
-    local passwordRepeat = self.inputComponents["passwordRepeatInputField"].lines[0]
+    local name           = self.inputComponents["nameInputField"].lines[1]
+    local password       = self.inputComponents["passwordInputField"].lines[1]
+    local passwordRepeat = self.inputComponents["passwordRepeatInputField"].lines[1]
 
     if (name == "") then
         self.components["errorTextField"].isVisible = true

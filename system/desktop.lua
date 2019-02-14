@@ -7,6 +7,7 @@ local icons          = require "system.icons"
 -- InfOS Apps
 local Paint          = require "apps.paint"
 local ComponentsTest = require "apps.componentsTest"
+local TextEditor     = require "apps.textEditor"
 local Settings       = require "apps.settings"
 -- OpenOS
 local computer       = require "computer"
@@ -47,7 +48,7 @@ function Desktop:constructor(properties, parameters)
             app = nil,
         },
         {
-            app = nil,
+            app = TextEditor,
         },
         {
             app = Settings,

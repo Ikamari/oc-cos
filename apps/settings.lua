@@ -172,7 +172,7 @@ function Settings:switchPasswordVisibility(state)
 end
 
 function Settings:validateOldPassword()
-    local oldPassword      = self:getComponent("old_password_input").lines[0]
+    local oldPassword      = self:getComponent("old_password_input").lines[1]
     local validOldPassword = self.system.config:get("user", "password")
 
     if validOldPassword == "" then
@@ -187,8 +187,8 @@ function Settings:validateOldPassword()
 end
 
 function Settings:updatePassword()
-    local newPassword = self:getComponent("new_password_input").lines[0]
-    local repeatOfNewPassword = self:getComponent("new_password_repeat_input").lines[0]
+    local newPassword = self:getComponent("new_password_input").lines[1]
+    local repeatOfNewPassword = self:getComponent("new_password_repeat_input").lines[1]
 
     if newPassword == "" then
         self:showResult(self:getComponent("password_result"), false, "Поле \"Новый пароль\" должно быть заполнено")
@@ -252,7 +252,7 @@ function Settings:resetPassword()
 end
 
 function Settings:updateName()
-    local newName     = self:getComponent("name_input").lines[0]
+    local newName     = self:getComponent("name_input").lines[1]
     local currentName = self.system.config:get("user", "name")
     if newName ~= currentName and newName ~= "" then
         self.system.config:setValue("user", "name", newName)

@@ -80,7 +80,7 @@ function SignIn:constructor(properties, parameters)
 end
 
 function SignIn:submit()
-    local password      = self.inputComponents["passwordInputField"].lines[0]
+    local password      = self.inputComponents["passwordInputField"].lines[1]
     local validPassword = self.system.config:get("user", "password")
 
     if (password == validPassword) then

@@ -27,7 +27,7 @@ function Shortcut:constructor(properties, parameters)
     properties.height = constants.shortcutHeight
     properties.width  = constants.shortcutWidth
 
-    parameters.text   = parameters.text or (parameters.app and parameters.app.windowName or "Ярлык")
+    parameters.text   = parameters.text or (parameters.app and parameters.app.windowName or "n/a")
 
     -- Call parent constructor
     Button:constructor(properties, parameters)
