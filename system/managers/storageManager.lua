@@ -27,7 +27,7 @@ function StorageManager:exists(fileName)
 end
 
 function StorageManager:create(fileName, data, serialize)
-    self.system.file:write(self.storagePath .. fileName, data, serialize)
+    return self.system.file:write(self.storagePath .. fileName, data, serialize)
 end
 
 function StorageManager:get(fileName, unserialize, valueName)

@@ -46,9 +46,22 @@ function FileManager:write(filePath, data, serialize)
     end
 
     -- Create new config file with specified values
-    local file = io.open(filePath, "w")
-    file:write(serialize and srl.serialize(data) or data)
+    local file, fileError = io.open(filePath, "w")
+
+    -- Check whether file was successfully opened for writing
+    if not file then
+        return false, fileError
+    end
+
+    local result, writeError = file:write(serialize and srl.serialize(data) or data)
+
+    -- Check whether data was successfully written to file
+    if not result then
+        return false, writeError
+    end
+
     file:close()
+    return true
 end
 
 function FileManager:remove(filePath)

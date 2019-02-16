@@ -1,7 +1,10 @@
+local unicode = require "unicode"
+
 local StringHelper = {}
 
 function StringHelper:getLength(str)
-    return select(2, string.gsub(str, "[^\128-\193]", ""))
+    --return select(2, string.gsub(str, "[^\128-\193]", ""))
+    return unicode.len(str)
 end
 
 function StringHelper:removeFromStart(str, amount)

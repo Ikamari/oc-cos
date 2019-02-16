@@ -9,6 +9,7 @@ local Switch          = require "system.components.common.switch"
 local TextField       = require "system.components.common.textField"
 local LinedInputField = require "system.components.common.linedInputField"
 -- OpenOS
+local event     = require "event"
 local component = require "component"
 local gpu       = component.gpu
 
@@ -28,14 +29,89 @@ function TextEditor:constructor(properties, parameters)
     -- Call parent constructor
     BasicApp:constructor(properties, parameters)
 
-    properties.currentPage = 1
-    properties.pages       = {}
-    table.insert(properties.pages, properties:createBlankPage())
+    -- Document name
+    properties:addComponent(TextField, {
+        posX   = properties.contentX,
+        posY   = properties.contentY,
+        width  = 15,
+        height = 1,
+        text   = "Название файла:",
+        centeredText = true,
+    }, properties, "document_name_label")
+
+    properties:addComponent(LinedInputField, {
+        posX   = properties.contentX + 16,
+        posY   = properties.contentY - 1,
+        width  = 33,
+        height = 1,
+        filter = "[%w%._%-]"
+    }, properties, "document_name_field")
+
+    properties:addComponent(TextField, {
+        posX   = properties.contentX + 53,
+        posY   = properties.contentY,
+        width  = 98,
+        height = 1,
+        text   = "Заметка: в названии могут быть только буквы латинского алфавита, цифры и символы: \"-\", \"_\" и \".\"",
+    }, properties, "document_name_note")
+
+    -- Document controls
+    properties:addComponent(Button, {
+        posX   = properties.contentX,
+        posY   = properties.contentY + 2,
+        width  = 12,
+        height = 1,
+        text   = "Создать",
+        onTouchCallback = function()
+            properties:createDocument()
+        end
+    }, properties, "new_document_button")
+
+    properties:addComponent(Button, {
+        posX   = properties.contentX + 13,
+        posY   = properties.contentY + 2,
+        width  = 12,
+        height = 1,
+        text   = "Открыть…",
+        onTouchCallback = function()
+            properties:openDocument()
+        end
+    }, properties, "save_document_button")
+
+    properties:addComponent(Button, {
+        posX   = properties.contentX + 26,
+        posY   = properties.contentY + 2,
+        width  = 12,
+        height = 1,
+        text   = "Сохранить",
+        onTouchCallback = function()
+            properties:saveDocument()
+        end
+    }, properties, "open_document_button")
+
+    properties:addComponent(Button, {
+        posX   = properties.contentX + 39,
+        posY   = properties.contentY + 2,
+        width  = 12,
+        height = 1,
+        text   = "Печать…",
+        onTouchCallback = function()
+            properties:printDocument()
+        end
+    }, properties, "print_document_button")
+
+    properties:addComponent(TextField, {
+        posX   = properties.contentX + 53,
+        posY   = properties.contentY + 2,
+        width  = 98,
+        height = 1,
+        text   = "",
+    }, properties, "document_action_result")
 
     -- Main input field
     properties:addComponent(LinedInputField, {
         posX   = -1,
-        posY   = properties.contentY + 1,
+        posY   = properties.contentY + 5,
         width  = 30,
         height = 20,
         horizontallyCentered = true
@@ -44,7 +120,7 @@ function TextEditor:constructor(properties, parameters)
     -- Page select
     properties:addComponent(Button, {
         posX   = -9,
-        posY   = properties.contentY + 23,
+        posY   = properties.contentY + 27,
         width  = 9,
         height = 1,
         text   = "Пред.",
@@ -55,7 +131,7 @@ function TextEditor:constructor(properties, parameters)
     }, properties, "select_previous_page_button")
 
     properties:addComponent(TextField, {
-        posY   = properties.contentY + 23,
+        posY   = properties.contentY + 27,
         width  = 6,
         height = 1,
         text   = "1 из 1",
@@ -65,7 +141,7 @@ function TextEditor:constructor(properties, parameters)
 
     properties:addComponent(Button, {
         posX   = 10,
-        posY   = properties.contentY + 23,
+        posY   = properties.contentY + 27,
         width  = 9,
         height = 1,
         text   = "След.",
@@ -78,7 +154,7 @@ function TextEditor:constructor(properties, parameters)
 
     -- Page controls
     properties:addComponent(Button, {
-        posY   = properties.contentY + 26,
+        posY   = properties.contentY + 30,
         width  = 32,
         height = 1,
         text   = "Создать новую страницу",
@@ -89,7 +165,7 @@ function TextEditor:constructor(properties, parameters)
     }, properties, "create_page_button")
 
     properties:addComponent(Button, {
-        posY   = properties.contentY + 28,
+        posY   = properties.contentY + 32,
         width  = 32,
         height = 1,
         text   = "Очистить страницу",
@@ -100,7 +176,7 @@ function TextEditor:constructor(properties, parameters)
     }, properties, "clear_page_button")
 
     properties:addComponent(Button, {
-        posY   = properties.contentY + 30,
+        posY   = properties.contentY + 34,
         width  = 32,
         height = 1,
         text   = "Удалить  страницу",
@@ -110,16 +186,28 @@ function TextEditor:constructor(properties, parameters)
         end
     }, properties, "delete_page_button")
     --
+
+    properties:createDocument(properties, true)
 end
 
 function TextEditor:createBlankPage()
-    return { "", "", "", "", "", "", "", "", "", "", "" , "", "", "", "", "", "", "", "", "" }
+    local page = {
+        lines      = {},
+        properties = {}
+    }
+    for pageNum = 1, 20 do
+        table.insert(page.lines, "")
+        table.insert(page.properties, {
+            color = 0x000000
+        })
+    end
+    return page
 end
 
 function TextEditor:showConfirmation(text)
     return self:call(PopUp, {
         windowName = "Подтверждение",
-        text = "Вы уверены, что хотите " .. text .. "?",
+        text = text,
         centeredText = true,
         type = "warning",
         doConfirmButtonRender = true,
@@ -139,6 +227,24 @@ function TextEditor:showWarning(text)
     })
 end
 
+function TextEditor:showActionResult(isSuccess, text)
+    local resultComponent = self:getComponent("document_action_result")
+    resultComponent.textForegroundColor = isSuccess and constants.successTextColor or constants.errorTextColor
+    resultComponent:updateText(text)
+
+    -- Prevent unexpected clean of result
+    local clock = os.clock()
+    resultComponent.updateClock = clock
+
+    local callback = function ()
+        if resultComponent.updateClock == clock then
+            resultComponent:updateText("")
+        end
+    end
+
+    self:addEvent(event.timer(3, callback))
+end
+
 function TextEditor:debug()
     for key, value in pairs(self.pages[self.currentPage]) do
         gpu.setForeground(0xFFFFFF)
@@ -148,14 +254,83 @@ function TextEditor:debug()
     os.sleep(1)
 end
 
-function TextEditor:selectPage(futurePage)
+function TextEditor:loadDocument(documentName, pages, properties)
+    properties = properties or self
+    properties.currentPage     = 1
+    properties.pages           = {}
+    properties.pagesProperties = {}
+
+    for pageNum, pageData in pairs(pages) do
+        table.insert(properties.pages, pageData.lines)
+        table.insert(properties.pagesProperties, pageData.properties)
+    end
+
+    properties:getComponent("document_name_field"):updateLines({documentName})
+    properties:showActionResult(true, "")
+    properties:selectPage(properties.currentPage, true)
+end
+
+function TextEditor:createDocument(properties, skipConfirmation)
+    properties = properties or self
+
+    -- Ask user to confirm his action
+    if not skipConfirmation then
+        if not properties:showConfirmation("Вы уверены, что создать новый файл?\nВсе несохраненные изменения в текущем файле будут утеряны.") then
+            return false
+        end
+    end
+
+    properties:loadDocument("", { properties:createBlankPage() }, properties)
+
+    return true
+end
+
+function TextEditor:openDocument()
+
+end
+
+function TextEditor:saveDocument()
+    local documentName = self:getComponent("document_name_field").lines[1]
+
+    if documentName == "" then
+        self:showWarning("Необходимо указать название файла")
+        return false
+    end
+
+    documentName = documentName .. ".sdoc"
+
+    if self.system.storage:exists(documentName) then
+        if not self:showConfirmation("Вы уверены, что хотите перезаписать файл \"" .. documentName .. "\"?") then
+            return false
+        end
+    end
+
+    self:savePage()
+    local result, error = self.system.storage:create(documentName, {self.pages, self.pagesProperties})
+
+    if error then
+        self:showActionResult(false, "Ошибка: недостаточно памяти")
+        return false
+    end
+
+    self:showActionResult(true, "Файл успешно сохранён")
+    return true
+end
+
+function TextEditor:printDocument()
+
+end
+
+function TextEditor:selectPage(futurePage, skipSave)
     -- Check whether it's possible to change page
     if (futurePage < 1 or futurePage > #self.pages) then
         return false
     end
 
     -- Save current page in text editor
-    self:savePage()
+    if not skipSave then
+        self:savePage()
+    end
 
     -- Update text editor properties
     self.currentPage = futurePage
@@ -169,23 +344,21 @@ function TextEditor:selectPage(futurePage)
     return true
 end
 
+function TextEditor:selectNextPage(skipSave)
+    return self:selectPage(self.currentPage + 1, skipSave)
+end
+
+function TextEditor:selectPreviousPage(skipSave)
+    return self:selectPage(self.currentPage -1, skipSave)
+end
+
 function TextEditor:savePage()
     -- Save current page in text editor
-    --self:debug()
     if self.pages[self.currentPage] then
         for key, string in pairs (self:getComponent("text_field").lines) do
             self.pages[self.currentPage][key] = string
         end
     end
-    --self:debug()
-end
-
-function TextEditor:selectNextPage()
-    return self:selectPage(self.currentPage + 1)
-end
-
-function TextEditor:selectPreviousPage()
-    return self:selectPage(self.currentPage -1)
 end
 
 function TextEditor:createPage()
@@ -197,7 +370,9 @@ function TextEditor:createPage()
     end
 
     -- Create new blank page
-    table.insert(self.pages, self:createBlankPage())
+    local page = self:createBlankPage()
+    table.insert(self.pages, page.lines)
+    table.insert(self.pagesProperties, page.properties)
 
     -- Open new page
     self:selectPage(futurePage)
@@ -207,12 +382,14 @@ end
 
 function TextEditor:clearPage()
     -- Ask user to confirm his action
-    if not self:showConfirmation("очистить текущую страницу") then
+    if not self:showConfirmation("Вы уверены, что хотие очистить текущую страницу?") then
         return false
     end
 
     -- Clear current page
-    self.pages[self.currentPage] = self:createBlankPage()
+    local page = self:createBlankPage()
+    self.pages[self.currentPage]           = page.lines
+    self.pagesProperties[self.currentPage] = page.properties
     self:getComponent("text_field"):updateLines(self.pages[self.currentPage])
 
     return true
@@ -221,21 +398,22 @@ end
 function TextEditor:deletePage()
     -- Check how many pages left and don't let do delete the last one
     if #self.pages <= 1 then
-        self:showWarning("Вы не можете удалить единственную страницу")
+        self:showWarning("Вы не можете удалить последнюю оставшуюся страницу")
         return false
     end
 
     -- Ask user to confirm his action
-    if not self:showConfirmation("удалить текущую страницу") then
+    if not self:showConfirmation("Вы уверены, что хотие удалить текущую страницу?") then
         return false
     end
 
     -- Delete current page
     table.remove(self.pages, self.currentPage)
+    table.remove(self.pagesProperties, self.currentPage)
 
     -- Open existing page (previous page is in priority)
-    if not self:selectPage(self.currentPage) then
-        if not self:selectPreviousPage() then
+    if not self:selectPage(self.currentPage, true) then
+        if not self:selectPreviousPage(true) then
             -- Return critical error if text editor will fall into a stalemate
             error("Текстовый редактор зашёл в тупик с выбором страницы")
         end
