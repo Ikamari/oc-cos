@@ -46,13 +46,14 @@ function UIComponent:constructor(properties, parameters)
         properties.height = parameters.height
     end
 
-    if (type(parameters.posX) ~= "number" and parameters.horizontallyCentered ~= true) or type(parameters.posY) ~= "number" then
+    if (type(parameters.posX) ~= "number" and parameters.horizontallyCentered ~= true) or (type(parameters.posY) ~= "number" and parameters.verticallyCentered ~= true) then
         error("Component must receive \"posX\" and \"posY\" number parameters")
     end
 
     properties.frameColor          = parameters.frameColor      or constants.frameColor
     properties.backgroundColor     = parameters.backgroundColor or constants.componentBackgroundColor
     properties.textBackgroundColor = parameters.textBackgroundColor or parameters.backgroundColor or constants.componentBackgroundColor
+    -- TODO:  do something with "parameters.foregroundColor"
     properties.textForegroundColor = parameters.foregroundColor or constants.invertedTextColor
 
     if parameters.horizontallyCentered then
@@ -64,7 +65,16 @@ function UIComponent:constructor(properties, parameters)
     else
         properties.posX = parameters.posX
     end
-    properties.posY = parameters.posY
+
+    if parameters.verticallyCentered then
+        local componentHeight = properties.height + BoolHelper:toInt(parameters.doTopFramePartRender) + BoolHelper:toInt(parameters.doBottomFramePartRender)
+        properties.posY = properties.parent.contentY + math.ceil((properties.parent.contentHeight - componentHeight) / 2)
+        if (parameters.posY) then
+            properties.posY = properties.posY + parameters.posY
+        end
+    else
+        properties.posY = parameters.posY
+    end
 
     properties.contentY      = properties.posY
     properties.contentHeight = properties.height

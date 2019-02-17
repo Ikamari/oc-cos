@@ -18,6 +18,8 @@ local PopUp = BasicApp:inherit({
     windowWidth  = screenWidth  * 0.5,
     windowHeight = 6,
 
+    blinkOnMiss  = true,
+
     autoSize     = false
 })
 
@@ -103,27 +105,6 @@ function PopUp:constructor(properties, parameters)
         })
         properties.components[#properties.components + 1] = denyButton
     end
-
-
-    local popupZone = ClickableZone:new(_, {
-        x      = properties.windowX,
-        y      = properties.windowY,
-        width  = properties.windowWidth,
-        height = properties.windowHeight,
-        type   = "zone",
-        parent = properties,
-        onFailCallback = function ()
-            gpu.setBackground(constants.backgroundColor)
-            for i = 1, 6 do
-                os.sleep(0.08)
-                properties.frameColor = i % 2 == 0 and constants.frameColor or constants.highlightedFrameColor
-                properties:renderFrame()
-                properties:renderWindowName()
-                properties:renderCloseButton()
-            end
-        end
-    })
-    properties.clickableZones["canvas"] = popupZone
 end
 
 return PopUp

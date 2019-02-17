@@ -30,11 +30,16 @@ function StorageManager:create(fileName, data, serialize)
     return self.system.file:write(self.storagePath .. fileName, data, serialize)
 end
 
+function StorageManager:remove(fileName)
+    self.system.file:remove(self.storagePath .. fileName)
+    return true
+end
+
 function StorageManager:get(fileName, unserialize, valueName)
     -- Get current config values
     local fileData = self.system.file:read(self.storagePath .. fileName, unserialize)
 
-    if unserialize and type(valueName) == "string" then
+    if unserialize ~= false and valueName then
         return fileData[valueName]
     end
 

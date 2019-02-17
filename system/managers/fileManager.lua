@@ -81,13 +81,13 @@ function FileManager:list(directoryPath, filter, skipDirectories)
     local list = {}
     for file in filesystem.list(directoryPath) do
         if skipDirectories then
-            if file.find("/$") then
+            if file:find("/$") then
                 goto continue
             end
         end
 
         if filter then
-            if not file.find(filter) then
+            if not file:find(filter) then
                 goto continue
             end
         end

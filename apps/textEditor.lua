@@ -1,5 +1,6 @@
 -- InfOS
 local BasicApp  = require "system.app"
+local Explorer  = require "system.explorer"
 local PopUp     = require "system.popup"
 local constants = require "system.constants"
 local icons     = require "system.icons"
@@ -286,7 +287,15 @@ function TextEditor:createDocument(properties, skipConfirmation)
 end
 
 function TextEditor:openDocument()
+    local result = self:call(Explorer, { allowDeletion = true }, self)
 
+    if type(result) ~= "table" then
+        return false
+    end
+
+    self:loadDocument(result.fileName:match("(.+)%."), result.data)
+
+    return true
 end
 
 function TextEditor:saveDocument()
@@ -305,8 +314,16 @@ function TextEditor:saveDocument()
         end
     end
 
+    local documentData = {}
+    for pageNum, pageData in pairs(self.pages) do
+        table.insert(documentData, {
+            lines      = pageData,
+            properties = self.pagesProperties[pageNum]
+        })
+    end
+
     self:savePage()
-    local result, error = self.system.storage:create(documentName, {self.pages, self.pagesProperties})
+    local result, error = self.system.storage:create(documentName, documentData)
 
     if error then
         self:showActionResult(false, "Ошибка: недостаточно памяти")

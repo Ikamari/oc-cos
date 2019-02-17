@@ -21,7 +21,7 @@ local process   = require "process"
 ---@field public storage StorageManager
 ---@field public file    FileManager
 local OS = Object:inherit({
-    version    = "0.6.0",
+    version    = "0.7.0",
     isRunning  = false,
     isLoggedIn = false,
     isUnrecoverable = false

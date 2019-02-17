@@ -38,6 +38,8 @@ local BasicApp = Object:inherit({
 
     closeButtonIndent = 3,    -- "right margin" in columns
 
+    blinkOnMiss = false,
+
     windowX         = 1,
     windowY         = 1,
     windowWidth     = screenWidth,
@@ -58,6 +60,7 @@ function BasicApp:constructor(properties, parameters)
     end
 
     properties.system  = parameters.system
+    properties.parent  = parameters.parent
 
     properties.windowX = parameters.windowX or properties.windowX
     properties.windowY = parameters.windowY or properties.windowY
@@ -94,12 +97,34 @@ function BasicApp:constructor(properties, parameters)
         })
         properties.clickableZones[#properties.clickableZones + 1] = buttonPoint
     end
+
+    if properties.blinkOnMiss then
+        local windowZone = ClickableZone:new(_, {
+            x      = properties.windowX,
+            y      = properties.windowY,
+            width  = properties.windowWidth,
+            height = properties.windowHeight,
+            type   = "zone",
+            parent = properties,
+            onFailCallback = function ()
+                gpu.setBackground(constants.backgroundColor)
+                for i = 1, 6 do
+                    os.sleep(0.08)
+                    properties.frameColor = i % 2 == 0 and constants.frameColor or constants.highlightedFrameColor
+                    properties:renderFrame()
+                    properties:renderWindowName()
+                    properties:renderCloseButton()
+                end
+            end
+        })
+        properties.clickableZones["window_zone"] = windowZone
+    end
 end
 
 ---@param App        BasicApp
 ---@param parameters table
 ---@param properties BasicApp
-function BasicApp:callApp(App, parameters, properties)
+function BasicApp:callApp(App, parameters, properties, autoUpdateSide)
     properties = properties or self
     parameters = parameters or {}
     parameters["windowX"] = properties.contentX
@@ -110,7 +135,7 @@ end
 ---@param Child      BasicApp
 ---@param parameters table
 ---@param properties BasicApp
-function BasicApp:call(Child, parameters, properties)
+function BasicApp:call(Child, parameters, properties, autoUpdateSide)
     properties = properties or self
     parameters = parameters or {}
     parameters["system"] = properties.system
@@ -118,7 +143,7 @@ function BasicApp:call(Child, parameters, properties)
     properties.child = Child:new(_, parameters)
     local status = properties.child:run()
     properties.child = nil
-    properties:update("down")
+    properties:update(autoUpdateSide or "down")
     return status
 end
 
@@ -163,8 +188,8 @@ function BasicApp:terminate(status)
 end
 
 function BasicApp:update(side)
-    if self.parent and (side == "down" or side == "both") then
-        self.parent.update("down")
+    if self.parent and (side == "down" or side == "both" or side == "first_parent") then
+        self.parent:update(side == "first_parent" and "" or "down")
     end
     self:render()
     if self.child and (side == "up" or side == "both") then
