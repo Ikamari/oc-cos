@@ -143,7 +143,7 @@ function Explorer:prepareComponents(properties)
     -- Page controls
     if properties.currentPage > 1 then
         properties:addComponent(Button, {
-            posX   = -9,
+            posX   = -10,
             posY   = properties.contentY + properties.contentHeight - 1,
             width  = 9,
             height = 1,
@@ -166,7 +166,7 @@ function Explorer:prepareComponents(properties)
 
     if properties.currentPage < #properties.pages then
         properties:addComponent(Button, {
-            posX   = 10,
+            posX   = 9,
             posY   = properties.contentY + properties.contentHeight - 1,
             width  = 9,
             height = 1,

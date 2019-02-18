@@ -57,7 +57,7 @@ function Desktop:constructor(properties, parameters)
             executable = PopUp,
             parameters = {
                 windowName = "Выключение",
-                text = "Что Вы желаете сделать?",
+                text = "Что вы желаете сделать?",
                 centeredText = true,
                 doConfirmButtonRender = true,
                 doDenyButtonRender    = true,

@@ -40,7 +40,7 @@ function SignUp:constructor(properties, parameters)
         posY   = properties.contentY + 16,
         width  = 87,
         height = 3,
-        text   = "В связи с тем, что это первый запуск системы, необходимо, чтобы Вы указали своё имя или название этого компьютера. Также в целях безопасности рекомендуется указать пароль.",
+        text   = "В связи с тем, что это первый запуск системы, необходимо, чтобы вы указали своё имя или название этого компьютера. Также в целях безопасности рекомендуется указать пароль.",
         horizontallyCentered = true,
         centeredText = true
     }, properties, "infoTextField")

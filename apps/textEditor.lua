@@ -217,6 +217,18 @@ function TextEditor:showConfirmation(text)
     })
 end
 
+function TextEditor:showError(text)
+    return self:call(PopUp, {
+        windowName = "Ошибка",
+        text       = text,
+        type       = "error",
+        centeredText          = true,
+        doConfirmButtonRender = true,
+        confirmButtonText     = "Ок",
+        doCloseButtonRender   = false
+    })
+end
+
 function TextEditor:showWarning(text)
     return self:call(PopUp, {
         windowName = "Уведомление",
@@ -334,8 +346,97 @@ function TextEditor:saveDocument()
     return true
 end
 
-function TextEditor:printDocument()
+function TextEditor:getPrinter()
+    -- Check whether printer is available
+    if not component.isAvailable("openprinter") then
+        self:showError("Печать невозможна. Не установлен ни один принтер")
+        return false;
+    end
 
+    return component.openprinter
+end
+
+function TextEditor:printDocument()
+    self:savePage()
+
+    local printer = self:getPrinter()
+    if not printer then
+        return false
+    end
+
+    local decision = self:call(PopUp, {
+        windowName   = "Печать",
+        text         = "Что вы желаете распечатать?",
+        centeredText = true,
+        doConfirmButtonRender = true,
+        doDenyButtonRender    = true,
+        doCloseButtonRender   = true,
+        confirmButtonText     = "Текущую страницу",
+        denyButtonText        = "Все страницы"
+    })
+
+    if decision == 0 then
+        return false
+    elseif decision then
+        self:showActionResult(true, "Идет печать. Пожалуйста, подождите")
+        self:printPage(printer, self.pages[self.currentPage])
+        self:showActionResult(true, "Печать завершена")
+        return true
+    end
+
+    for pageNum, pageLines in pairs(self.pages) do
+        self:showActionResult(true, "Идет печать: " .. pageNum .. " страница из " .. #self.pages .. ". Пожалуйста, подождите")
+        local isCancelled = not self:printPage(printer, pageLines)
+        if isCancelled then
+            self:showActionResult(true, "Печать отменена")
+            return false
+        end
+    end
+
+    self:showActionResult(true, "Печать завершена")
+    return true
+end
+
+function TextEditor:defineErrorMessage(error)
+    if error == "Please load Paper." then
+        return "Печать невозможна. Пожалуйста, вставьте бумагу"
+    elseif error == "Please load Ink." then
+        return "Печать невозможна. Пожалуйста, заправьте картриджи с красками"
+    elseif error == "No empty output slots." then
+        return "Печать невозможна. Пожалуйста, заберите бумагу из переполненного лотка"
+    end
+    return "Печать невозможна. Произошла неизвестная ошибка"
+end
+
+function TextEditor:printPage(printer, pageLines)
+    ::retry::
+    printer.clear()
+
+    for lineNum, line in pairs(pageLines) do
+        printer.writeln(line)
+    end
+
+    local result, error = printer.print()
+    if error then
+        local decision = self:call(PopUp, {
+            windowName   = "Ошибка",
+            text         = self:defineErrorMessage(error),
+            centeredText = true,
+            type         = "error",
+            doConfirmButtonRender = true,
+            doDenyButtonRender    = true,
+            doCloseButtonRender   = false,
+            confirmButtonText     = "Продолжить печать",
+            denyButtonText        = "Отменить печать"
+        })
+
+        if decision then
+            goto retry
+        end
+        return false
+    end
+
+    return true
 end
 
 function TextEditor:selectPage(futurePage, skipSave)
@@ -371,6 +472,7 @@ end
 
 function TextEditor:savePage()
     -- Save current page in text editor
+    -- todo: save lines properties
     if self.pages[self.currentPage] then
         for key, string in pairs (self:getComponent("text_field").lines) do
             self.pages[self.currentPage][key] = string
