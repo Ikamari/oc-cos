@@ -321,6 +321,12 @@ function BasicApp:processKeyDownEvent(address, char, code, playerName)
     end
 end
 
+function BasicApp:processClipboardEvent(address, string, playerName)
+    for key, uiComponent in pairs(self.inputComponents) do
+        uiComponent:onClipboard(string)
+    end
+end
+
 function BasicApp:processAddedFloppyEvent(address)
     if self.system.drive:check(address, true) then
         self.system.drive:run(self)
@@ -346,15 +352,17 @@ function BasicApp:run()
     -- Main loop
     while true do
         if self.doEventHandling then
-            local id, a, b, c, d, e = event.pullMultiple("interrupted", "touch", "drag", "key_down", "component_added", "component_removed")
+            local id, a, b, c, d, e = event.pullMultiple("interrupted", "touch", "drag", "key_down", "clipboard", "component_added", "component_removed")
             if id == "interrupted" then
                 self:processInterruptEvent()
             elseif id == "drag" then
                 self:processDragEvent(a, b, c, d, e)
             elseif id == "touch" then
-                self:processTouchEvent(a, b, c, d, e)
+                self:processTouchEvent(a, b, c, d)
             elseif id == "key_down" then
-                self:processKeyDownEvent(a, b, c, d, e)
+                self:processKeyDownEvent(a, b, c, d)
+            elseif id == "clipboard" then
+                self:processClipboardEvent(a, b, c)
             elseif id == "component_added" and b == "filesystem" then
                 self:processAddedFloppyEvent(a)
             elseif id == "component_removed" and b == "filesystem" then

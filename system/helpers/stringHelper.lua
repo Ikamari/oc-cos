@@ -38,7 +38,6 @@ function StringHelper:trim(str, maxLength, addDots)
     end
 end
 
--- TODO: add newline support
 function StringHelper:splitToLines(str, maxLineLength, maxLines)
     maxLines = maxLines or 1
 

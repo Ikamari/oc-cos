@@ -413,7 +413,7 @@ function TextEditor:printPage(printer, pageLines)
     printer.clear()
 
     for lineNum, line in pairs(pageLines) do
-        printer.writeln(line)
+        printer.writeln(" " .. line)
     end
 
     local result, error = printer.print()
